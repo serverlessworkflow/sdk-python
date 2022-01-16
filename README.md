@@ -1,4 +1,4 @@
-# Serverless Workflow Specification - Typescript SDK
+# Serverless Workflow Specification - Python SDK
 
 Provides the Python API/SPI for the [Serverless Workflow Specification](https://github.com/serverlessworkflow/specification)
 
@@ -18,16 +18,15 @@ With the SDK you can:
 ## **WIP** Programmatically build workflow definitions 
 
 ```
-  workflow = Workflow(id_="greeting",
-                        name="Greeting Workflow",
-                        description="Greet Someone",
-                        version='1.0',
-                        specVersion='0.8',
-                        start="Greet",
-                        states=[],
-                        functions=[]
-                        )
-                        
+workflow = Workflow(id_="greeting",
+                    name="Greeting Workflow",
+                    description="Greet Someone",
+                    version='1.0',
+                    specVersion='0.8',
+                    start="Greet",
+                    states=[],
+                    functions=[]
+)             
 ```
 
 ## Parse workflow JSON and YAML definitions
@@ -35,7 +34,7 @@ With the SDK you can:
 ### Convert from JSON or YAML source
 
 ```
-  swf_content = """id: greeting
+swf_content = """id: greeting
 name: Greeting Workflow
 version: '1.0'
 description: Greet Someone
@@ -65,18 +64,17 @@ You can see a full example in the [test_workflow.py](./tests/test_workflow.py) f
 ### Parse workflow to JSON / YAML
 
 ```
-  workflow = Workflow(id_="greeting",
-                        name="Greeting Workflow",
-                        description="Greet Someone",
-                        version='1.0',
-                        specVersion='0.8',
-                        start="Greet",
-                        states=[],
-                        functions=[]
-                        )
-                        
-  print(workflow.to_json())
-  print(workflow.to_yaml())
+workflow = Workflow(id_="greeting",
+                    name="Greeting Workflow",
+                    description="Greet Someone",
+                    version='1.0',
+                    specVersion='0.8',
+                    start="Greet",
+                    states=[],
+                    functions=[]
+)                
+print(workflow.to_json())
+print(workflow.to_yaml())
 ```
 
 You can see a full example in the [test_workflow.py](./tests/test_workflow.py) file
@@ -85,16 +83,16 @@ You can see a full example in the [test_workflow.py](./tests/test_workflow.py) f
 ## Validate workflow definitions
 
 ```
-  workflow = Workflow(id_="greeting",
-                        name="Greeting Workflow",
-                        description="Greet Someone",
-                        version='1.0',
-                        specVersion='0.8',
-                        start="Greet",
-                        states=[],
-                        functions=[]
-                        )
-  WorkflowValidator(Workflow(workflow)).validate()
+workflow = Workflow(id_="greeting",
+                    name="Greeting Workflow",
+                    description="Greet Someone",
+                    version='1.0',
+                    specVersion='0.8',
+                    start="Greet",
+                    states=[],
+                    functions=[]
+)
+WorkflowValidator(Workflow(workflow)).validate()
 
 ```
 The `validate` method will raise an exception if the provided workflow does not complaint specification.
