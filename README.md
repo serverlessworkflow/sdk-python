@@ -12,8 +12,19 @@ With the SDK you can:
 
 ## Install dependencies and run test 
 
-- `pipenv install`
-- `python setup.py pytest`
+- Python 3 required
+
+```
+pipenv install
+python setup.py pytest
+```
+
+If you get issues about missing modules:
+
+```
+pip3 install jsonschema
+pip3 install pyyaml
+```
 
 ## **WIP** Programmatically build workflow definitions 
 
