@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+jsonschema = "==4.4.0"
+pyyaml = "==6.0"
+
+[dev-packages]
+pytest = "==6.2.5"
+pytest-runner = "==5.3.1"
+
+[requires]
+python_version = "3.9"
