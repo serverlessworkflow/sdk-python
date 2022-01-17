@@ -1,4 +1,4 @@
-from serverlessworkflow_sdk.state import State
+from serverlessworkflow.sdk.state import State
 
 
 class InjectState(State):

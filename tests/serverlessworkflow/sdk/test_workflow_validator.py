@@ -5,14 +5,14 @@ from os import listdir
 
 from jsonschema.exceptions import ValidationError
 
-from serverlessworkflow_sdk.workflow import Workflow
-from serverlessworkflow_sdk.workflow_validator import WorkflowValidator
+from serverlessworkflow.sdk.workflow import Workflow
+from serverlessworkflow.sdk.workflow_validator import WorkflowValidator
 
 
 class TestWorkflowValidator(unittest.TestCase):
 
     def test_validate_examples(self):
-        examples_dir = os.path.join(os.path.dirname(__file__), 'examples')
+        examples_dir = os.path.join(os.path.dirname(__file__), '../../examples')
         examples = listdir(examples_dir)
         self.assertEqual(len(examples), 9)
 
@@ -22,7 +22,7 @@ class TestWorkflowValidator(unittest.TestCase):
                 WorkflowValidator(Workflow(**swf_file_content)).validate()
 
     def test_invalid_wf(self):
-        wf_file = os.path.join(os.path.dirname(__file__), 'examples', 'applicantrequest.json')
+        wf_file = os.path.join(os.path.dirname(__file__), '../../examples', 'applicantrequest.json')
 
         with open(wf_file, "r") as swf_file:
             swf_content = swf_file.read()

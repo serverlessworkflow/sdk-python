@@ -1,5 +1,5 @@
-from serverlessworkflow_sdk.action import Action
-from serverlessworkflow_sdk.state import State
+from serverlessworkflow.sdk.action import Action
+from serverlessworkflow.sdk.state import State
 
 
 class OperationState(State):

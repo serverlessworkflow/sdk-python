@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from serverlessworkflow_sdk.action import Action
-from serverlessworkflow_sdk.workflow import Workflow
+from serverlessworkflow.sdk.action import Action
+from serverlessworkflow.sdk.workflow import Workflow
 
 
 class TestWorkflow(unittest.TestCase):
