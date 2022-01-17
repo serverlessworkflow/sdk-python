@@ -1,22 +1,19 @@
 import json
-import os
-
+import requests
 from jsonschema.validators import validate
-
 from serverlessworkflow_sdk.workflow import Workflow
 
 
 class WorkflowValidator:
     workflow: Workflow
     json_schema_content: object = None
+    SCHEMAS_WORKFLOW_JSON = "https://serverlessworkflow.io/schemas/0.8/workflow.json"
 
     def __init__(self, workflow: Workflow):
         self.workflow = workflow
 
-        if not self.json_schema_content:
-            file_json_schema = os.path.join(os.path.dirname(__file__), 'jsonschemas', 'workflow.json')
-            with open(file_json_schema, "r") as json_schema:
-                self.json_schema_content = json.load(json_schema)
+        file_json_schema = requests.get(self.SCHEMAS_WORKFLOW_JSON)
+        self.json_schema_content = file_json_schema.json()
 
     def validate(self):
         workflow = json.loads(json.dumps(self.workflow, default=lambda o: o.__dict__))

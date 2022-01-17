@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 jsonschema = "==4.4.0"
 pyyaml = "==6.0"
+requests = "*"
 
 [dev-packages]
 pytest = "==6.2.5"
