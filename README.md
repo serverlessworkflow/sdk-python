@@ -14,16 +14,14 @@ With the SDK you can:
 
 - Python 3 required
 
+- pipenv required `pip install pipenv`
+
 ```
 pipenv install
+
+pipenv shell
+
 python setup.py pytest
-```
-
-If you get issues about missing modules:
-
-```
-pip3 install jsonschema
-pip3 install pyyaml
 ```
 
 ## **WIP** Programmatically build workflow definitions 
@@ -69,7 +67,7 @@ functions:
   workflow = Workflow.from_source(swf_content)
 ```
 
-You can see a full example in the [test_workflow.py](./tests/test_workflow.py) file
+You can see a full example in the [test_workflow.py](tests/serverlessworkflow/sdk/test_workflow.py) file
 
 
 ### Parse workflow to JSON / YAML
@@ -88,7 +86,7 @@ print(workflow.to_json())
 print(workflow.to_yaml())
 ```
 
-You can see a full example in the [test_workflow.py](./tests/test_workflow.py) file
+You can see a full example in the [test_workflow.py](tests/serverlessworkflow/sdk/test_workflow.py) file
 
 
 ## Validate workflow definitions
@@ -108,4 +106,4 @@ WorkflowValidator(Workflow(workflow)).validate()
 ```
 The `validate` method will raise an exception if the provided workflow does not complaint specification.
 
-You can see a full example in the [test_workflow_validator](./tests/test_workflow_validator.py) file
+You can see a full example in the [test_workflow_validator](tests/serverlessworkflow/sdk/test_workflow_validator.py) file

@@ -2,9 +2,9 @@ import json
 
 import yaml
 
-from serverlessworkflow_sdk.inject_state import InjectState
-from serverlessworkflow_sdk.operation_state import OperationState
-from serverlessworkflow_sdk.state import State
+from serverlessworkflow.sdk.inject_state import InjectState
+from serverlessworkflow.sdk.operation_state import OperationState
+from serverlessworkflow.sdk.state import State
 
 
 def is_inject_state(state: State):
