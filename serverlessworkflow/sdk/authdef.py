@@ -1,28 +1,12 @@
-class Action:
-    id = None
+class Authdef:
     name = None
-    functionRef = None
-    eventRef = None
-    subFlowRef = None
-    sleep = None
-    retryRef = None
-    nonRetryableErrors = None
-    retryableErrors = None
-    actionDataFilter = None
-    condition = None
+    scheme = None
+    properties = None
 
     def __init__(self,
-                 id=None,
                  name=None,
-                 functionRef=None,
-                 eventRef=None,
-                 subFlowRef=None,
-                 sleep=None,
-                 retryRef=None,
-                 nonRetryableErrors=None,
-                 retryableErrors=None,
-                 actionDataFilter=None,
-                 condition=None,
+                 scheme=None,
+                 properties=None,
                  **kwargs):
 
         # duplicated

@@ -1,12 +1,12 @@
-from serverlessworkflow.sdk.state import State
+class StateExecTimeout:
+    single = None
+    total = None
 
-
-class InjectState(State):
-
-    data: dict
-
-    def __init__(self, data: dict = None,
+    def __init__(self,
+                 single=None,
+                 total=None,
                  **kwargs):
+
         # duplicated
         for local in list(locals()):
             if local in ["self", "kwargs"]:
@@ -28,5 +28,3 @@ class InjectState(State):
 
             self.__setattr__(k.replace("_", ""), value)
             # duplicated
-
-

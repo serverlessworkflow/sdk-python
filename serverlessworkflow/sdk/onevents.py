@@ -1,28 +1,14 @@
-class Action:
-    id = None
-    name = None
-    functionRef = None
-    eventRef = None
-    subFlowRef = None
-    sleep = None
-    retryRef = None
-    nonRetryableErrors = None
-    retryableErrors = None
-    actionDataFilter = None
-    condition = None
+class Onevents:
+    eventRefs = None
+    actionMode = None
+    actions = None
+    eventDataFilter = None
 
     def __init__(self,
-                 id=None,
-                 name=None,
-                 functionRef=None,
-                 eventRef=None,
-                 subFlowRef=None,
-                 sleep=None,
-                 retryRef=None,
-                 nonRetryableErrors=None,
-                 retryableErrors=None,
-                 actionDataFilter=None,
-                 condition=None,
+                 eventRefs=None,
+                 actionMode=None,
+                 actions=None,
+                 eventDataFilter=None,
                  **kwargs):
 
         # duplicated

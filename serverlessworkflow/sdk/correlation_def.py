@@ -1,28 +1,10 @@
-class Action:
-    id = None
-    name = None
-    functionRef = None
-    eventRef = None
-    subFlowRef = None
-    sleep = None
-    retryRef = None
-    nonRetryableErrors = None
-    retryableErrors = None
-    actionDataFilter = None
-    condition = None
+class CorrelationDef:
+    contextAttributeName = None
+    contextAttributeValue = None
 
     def __init__(self,
-                 id=None,
-                 name=None,
-                 functionRef=None,
-                 eventRef=None,
-                 subFlowRef=None,
-                 sleep=None,
-                 retryRef=None,
-                 nonRetryableErrors=None,
-                 retryableErrors=None,
-                 actionDataFilter=None,
-                 condition=None,
+                 contextAttributeName=None,
+                 contextAttributeValue=None,
                  **kwargs):
 
         # duplicated

@@ -1,28 +1,16 @@
-class Action:
-    id = None
+class Function:
     name = None
-    functionRef = None
-    eventRef = None
-    subFlowRef = None
-    sleep = None
-    retryRef = None
-    nonRetryableErrors = None
-    retryableErrors = None
-    actionDataFilter = None
-    condition = None
+    operation = None
+    type = None
+    authRef = None
+    metadata = None
 
     def __init__(self,
-                 id=None,
                  name=None,
-                 functionRef=None,
-                 eventRef=None,
-                 subFlowRef=None,
-                 sleep=None,
-                 retryRef=None,
-                 nonRetryableErrors=None,
-                 retryableErrors=None,
-                 actionDataFilter=None,
-                 condition=None,
+                 operation=None,
+                 type=None,
+                 authRef=None,
+                 metadata=None,
                  **kwargs):
 
         # duplicated

@@ -1,28 +1,20 @@
-class Action:
-    id = None
+class Retrydef:
     name = None
-    functionRef = None
-    eventRef = None
-    subFlowRef = None
-    sleep = None
-    retryRef = None
-    nonRetryableErrors = None
-    retryableErrors = None
-    actionDataFilter = None
-    condition = None
+    delay = None
+    maxDelay = None
+    increment = None
+    multiplier = None
+    maxAttempts = None
+    jitter = None
 
     def __init__(self,
-                 id=None,
                  name=None,
-                 functionRef=None,
-                 eventRef=None,
-                 subFlowRef=None,
-                 sleep=None,
-                 retryRef=None,
-                 nonRetryableErrors=None,
-                 retryableErrors=None,
-                 actionDataFilter=None,
-                 condition=None,
+                 delay=None,
+                 maxDelay=None,
+                 increment=None,
+                 multiplier=None,
+                 maxAttempts=None,
+                 jitter=None,
                  **kwargs):
 
         # duplicated
