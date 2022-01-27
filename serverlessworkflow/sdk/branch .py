@@ -1,28 +1,16 @@
-class Action:
-    id = None
+class Branch:
     name = None
-    functionRef = None
-    eventRef = None
-    subFlowRef = None
-    sleep = None
-    retryRef = None
-    nonRetryableErrors = None
-    retryableErrors = None
-    actionDataFilter = None
-    condition = None
+    timeouts = None
+    actionExecTimeout = None
+    branchExecTimeout = None
+    actions = None
 
     def __init__(self,
-                 id=None,
                  name=None,
-                 functionRef=None,
-                 eventRef=None,
-                 subFlowRef=None,
-                 sleep=None,
-                 retryRef=None,
-                 nonRetryableErrors=None,
-                 retryableErrors=None,
-                 actionDataFilter=None,
-                 condition=None,
+                 timeouts=None,
+                 actionExecTimeout=None,
+                 branchExecTimeout=None,
+                 actions=None,
                  **kwargs):
 
         # duplicated

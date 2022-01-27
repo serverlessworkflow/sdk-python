@@ -1,28 +1,30 @@
-class Action:
+class Injectstate:
     id = None
     name = None
-    functionRef = None
-    eventRef = None
-    subFlowRef = None
-    sleep = None
-    retryRef = None
-    nonRetryableErrors = None
-    retryableErrors = None
-    actionDataFilter = None
-    condition = None
+    type = None
+    end = None
+    data = None
+    timeouts = None
+    stateExecTimeout = None
+    stateDataFilter = None
+    transition = None
+    compensatedBy = None
+    usedForCompensation = None
+    metadata = None
 
     def __init__(self,
                  id=None,
                  name=None,
-                 functionRef=None,
-                 eventRef=None,
-                 subFlowRef=None,
-                 sleep=None,
-                 retryRef=None,
-                 nonRetryableErrors=None,
-                 retryableErrors=None,
-                 actionDataFilter=None,
-                 condition=None,
+                 type=None,
+                 end=None,
+                 data=None,
+                 timeouts=None,
+                 stateExecTimeout=None,
+                 stateDataFilter=None,
+                 transition=None,
+                 compensatedBy=None,
+                 usedForCompensation=None,
+                 metadata=None,
                  **kwargs):
 
         # duplicated

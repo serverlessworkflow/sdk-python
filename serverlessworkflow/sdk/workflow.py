@@ -2,8 +2,8 @@ import json
 
 import yaml
 
-from serverlessworkflow.sdk.inject_state import InjectState
-from serverlessworkflow.sdk.operation_state import OperationState
+from serverlessworkflow.sdk.injectstate import Injectstate
+from serverlessworkflow.sdk.operationstate import Operationstate
 from serverlessworkflow.sdk.state import State
 
 
@@ -16,26 +16,56 @@ def is_operation_state(state: State):
 
 
 class Workflow:
-    id: str
-    key: str
-    name: str
-    version: str
-    description: str
-    specVersion: str
-    start: str
-    states: [State]
-    functions: []
+    id = None
+    key = None
+    name = None
+    description = None
+    version = None
+    annotations = None
+    dataInputSchema = None
+    schema = None
+    failOnValidationErrors = None
+    secrets = None
+    constants = None
+    start = None
+    specVersion = None
+    expressionLang = None
+    timeouts = None
+    errors = None
+    keepActive = None
+    metadata = None
+    events = None
+    functions = None
+    autoRetries = None
+    retries = None
+    auth = None
+    states = None
 
     def __init__(self,
-                 id_: str = None,
-                 key: str = None,
-                 name: str = None,
-                 version: str = None,
-                 description: str = None,
-                 specVersion: str = None,
-                 start: str = None,
-                 states: [State] = None,
-                 functions: [] = None,
+                 id_=None,
+                 key=None,
+                 name=None,
+                 version=None,
+                 description=None,
+                 specVersion=None,
+                 annotations=None,
+                 dataInputSchema=None,
+                 schema=None,
+                 failOnValidationErrors=None,
+                 secrets=None,
+                 constants=None,
+                 start=None,
+                 expressionLang=None,
+                 timeouts=None,
+                 errors=None,
+                 keepActive=None,
+                 metadata=None,
+                 events=None,
+                 autoRetries=None,
+                 retries=None,
+                 auth=None,
+                 states=None,
+                 functions=None,
                  **kwargs):
 
         # duplicated
@@ -94,9 +124,9 @@ class Workflow:
         result = []
         for state in states:
             if is_inject_state(state):
-                result.append(InjectState(**(states[0])))
+                result.append(Injectstate(**(states[0])))
             elif is_operation_state(state):
-                result.append(OperationState(**(states[0])))
+                result.append(Operationstate(**(states[0])))
             else:
                 result.append(State(**(states[0])))
 

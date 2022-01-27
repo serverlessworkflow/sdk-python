@@ -1,28 +1,18 @@
-class Action:
-    id = None
-    name = None
-    functionRef = None
-    eventRef = None
-    subFlowRef = None
-    sleep = None
-    retryRef = None
-    nonRetryableErrors = None
-    retryableErrors = None
-    actionDataFilter = None
-    condition = None
+class Eventref:
+    triggerEventRef = None
+    resultEventRef = None
+    resultEventTimeout = None
+    data = None
+    contextAttributes = None
+    invoke = None
 
     def __init__(self,
-                 id=None,
-                 name=None,
-                 functionRef=None,
-                 eventRef=None,
-                 subFlowRef=None,
-                 sleep=None,
-                 retryRef=None,
-                 nonRetryableErrors=None,
-                 retryableErrors=None,
-                 actionDataFilter=None,
-                 condition=None,
+                 triggerEventRef=None,
+                 resultEventRef=None,
+                 resultEventTimeout=None,
+                 data=None,
+                 contextAttributes=None,
+                 invoke=None,
                  **kwargs):
 
         # duplicated
