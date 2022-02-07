@@ -1,9 +1,10 @@
-from typing import Dict
-
-
-class Metadata(Dict[str, str]):
+class StateDataFilter:
+    input: str = None
+    output: str = None
 
     def __init__(self,
+                 input: str = None,
+                 output: str = None,
                  **kwargs):
 
         # duplicated

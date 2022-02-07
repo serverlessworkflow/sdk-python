@@ -1,10 +1,19 @@
 import json
+from typing import Union, Dict, List
 
 import yaml
 
-from serverlessworkflow.sdk.injectstate import Injectstate
-from serverlessworkflow.sdk.operationstate import Operationstate
+from serverlessworkflow.sdk.auth_def import AuthDef
+from serverlessworkflow.sdk.error_def import ErrorDef
+from serverlessworkflow.sdk.event_def import EventDef
+from serverlessworkflow.sdk.function import Function
+from serverlessworkflow.sdk.inject_state import InjectState
+from serverlessworkflow.sdk.metadata import Metadata
+from serverlessworkflow.sdk.operation_state import OperationState
+from serverlessworkflow.sdk.retry_def import RetryDef
+from serverlessworkflow.sdk.start_def import StartDef
 from serverlessworkflow.sdk.state import State
+from serverlessworkflow.sdk.workflow_time_out import WorkflowTimeOut
 
 
 def is_inject_state(state: State):
@@ -15,94 +24,94 @@ def is_operation_state(state: State):
     return state['type'] == 'operation'
 
 
+class DataInputSchema:
+    schema: str
+    failOnValidationErrors: bool
+
+
 class Workflow:
-    id = None
-    key = None
-    name = None
-    description = None
-    version = None
-    annotations = None
-    dataInputSchema = None
-    schema = None
-    failOnValidationErrors = None
-    secrets = None
-    constants = None
-    start = None
-    specVersion = None
-    expressionLang = None
-    timeouts = None
-    errors = None
-    keepActive = None
-    metadata = None
-    events = None
-    functions = None
-    autoRetries = None
-    retries = None
-    auth = None
-    states = None
+    id: str = None
+    key: str = None
+    name: str = None
+    description: str = None
+    version: str = None
+    annotations: [str] = None
+    dataInputSchema: Union[str, DataInputSchema] = None
+    secrets: str = None  # Secrets
+    constants: Union[str, Dict[str, Dict]] = None
+    start: Union[str, StartDef] = None
+    specVersion: str = None
+    expressionLang: str = None
+    timeouts: Union[str, WorkflowTimeOut] = None
+    errors: Union[str, List[ErrorDef]] = None
+    keepActive: bool = None
+    metadata: Metadata = None
+    events: Union[str, List[EventDef]] = None
+    functions: Union[str, List[Function]] = None
+    autoRetries: bool = None
+    retries: Union[str, List[RetryDef]] = None
+    auth: Union[str, List[AuthDef]] = None
+    states: [State] = None
 
     def __init__(self,
-                 id_=None,
-                 key=None,
-                 name=None,
-                 version=None,
-                 description=None,
-                 specVersion=None,
-                 annotations=None,
-                 dataInputSchema=None,
-                 schema=None,
-                 failOnValidationErrors=None,
-                 secrets=None,
-                 constants=None,
-                 start=None,
-                 expressionLang=None,
-                 timeouts=None,
-                 errors=None,
-                 keepActive=None,
-                 metadata=None,
-                 events=None,
-                 autoRetries=None,
-                 retries=None,
-                 auth=None,
-                 states=None,
-                 functions=None,
-                 **kwargs):
+                 id_: str = None,
+                 key: str = None,
+                 name: str = None,
+                 version: str = None,
+                 description: str = None,
+                 specVersion: str = None,
+                 annotations: [str] = None,
+                 dataInputSchema: Union[str, DataInputSchema] = None,
+                 secrets: str = None,  # Secrets
+                 constants: Union[str, Dict[str, Dict]] = None,
+                 start: Union[str, StartDef] = None,
+                 expressionLang: str = None,
+                 timeouts: Union[str, WorkflowTimeOut] = None,
+                 errors: Union[str, List[ErrorDef]] = None,
+                 keepActive: bool = None,
+                 metadata: Metadata = None,
+                 events: Union[str, List[EventDef]] = None,
+                 autoRetries: bool = None,
+                 retries: Union[str, List[RetryDef]] = None,
+                 auth: Union[str, List[AuthDef]] = None,
+                 states: [State] = None,
+                 functions: Union[str, List[Function]] = None
+                 , **kwargs):
 
         # duplicated
         for local in list(locals()):
             if local in ["self", "kwargs"]:
                 continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
+            final_value = locals().get(local)
+            initial_value = locals().get(local)
+            if final_value == "true":
+                final_value = True
             # duplicated
 
-            if local == 'states':
-                value = Workflow.load_states(value)
+            if local == 'states' and final_value:
+                final_value = Workflow.load_states(final_value)
 
-            self.__setattr__(local.replace("_", ""), value)
+            if final_value is not None:
+                self.__setattr__(local.replace("_", ""), final_value)
 
         # duplicated
         for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+            final_value = kwargs[k]
+            if final_value == "true":
+                final_value = True
 
-            self.__setattr__(k.replace("_", ""), value)
+            self.__setattr__(k.replace("_", ""), final_value)
         # duplicated
 
     def to_json(self) -> str:
+
         return json.dumps(self,
                           default=lambda o: o.__dict__,
                           indent=4)
 
     def to_yaml(self):
-        def noop(self_, *args, **kw):
-            pass
 
-        yaml.emitter.Emitter.process_tag = noop
+        yaml.emitter.Emitter.process_tag = lambda x: None
         return yaml.dump(self,
                          sort_keys=False,
                          # , default_flow_style=False,
@@ -113,8 +122,6 @@ class Workflow:
     def from_source(cls, source: str):
         try:
             loaded_data = yaml.safe_load(source)
-            loaded_data["id_"] = loaded_data["id"]
-            del loaded_data["id"]
             return cls(**loaded_data)
         except Exception:
             raise Exception("Format not supported")
@@ -124,9 +131,9 @@ class Workflow:
         result = []
         for state in states:
             if is_inject_state(state):
-                result.append(Injectstate(**(states[0])))
+                result.append(InjectState(**(states[0])))
             elif is_operation_state(state):
-                result.append(Operationstate(**(states[0])))
+                result.append(OperationState(**(states[0])))
             else:
                 result.append(State(**(states[0])))
 

@@ -1,9 +1,22 @@
-from typing import Dict
+from typing import Union
+
+from serverlessworkflow.sdk.metadata import Metadata
+from serverlessworkflow.sdk.transition import Transition
 
 
-class Metadata(Dict[str, str]):
+class TransitionEventCondition:
+    name: str = None
+    eventRef: str = None
+    transition: Union[str, Transition] = None
+    eventDataFilter = None
+    metadata: Metadata = None
 
     def __init__(self,
+                 name: str = None,
+                 eventRef: str = None,
+                 transition: Union[str, Transition] = None,
+                 eventDataFilter=None,
+                 metadata: Metadata = None,
                  **kwargs):
 
         # duplicated

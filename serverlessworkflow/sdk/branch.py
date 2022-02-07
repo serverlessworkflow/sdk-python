@@ -1,9 +1,16 @@
-from typing import Dict
+from serverlessworkflow.sdk.action import Action
+from serverlessworkflow.sdk.branch_timeout import BranchTimeOut
 
 
-class Metadata(Dict[str, str]):
+class Branch:
+    name: str = None
+    timeouts: BranchTimeOut = None
+    actions: [Action] = None
 
     def __init__(self,
+                 name: str = None,
+                 timeouts: BranchTimeOut = None,
+                 actions: [Action] = None,
                  **kwargs):
 
         # duplicated

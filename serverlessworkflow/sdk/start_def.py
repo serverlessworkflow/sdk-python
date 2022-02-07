@@ -1,9 +1,15 @@
-from typing import Dict
+from typing import Union
+
+from serverlessworkflow.sdk.schedule import Schedule
 
 
-class Metadata(Dict[str, str]):
+class StartDef:
+    stateName: str = None
+    schedule: Union[str, Schedule] = None
 
     def __init__(self,
+                 stateName: str = None,
+                 schedule: Union[str, Schedule] = None,
                  **kwargs):
 
         # duplicated

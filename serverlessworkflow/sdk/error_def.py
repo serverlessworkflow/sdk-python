@@ -1,9 +1,12 @@
-from typing import Dict
-
-
-class Metadata(Dict[str, str]):
+class ErrorDef:
+    name: str = None
+    code: str = None
+    description: str = None
 
     def __init__(self,
+                 name: str = None,
+                 code: str = None,
+                 description: str = None,
                  **kwargs):
 
         # duplicated

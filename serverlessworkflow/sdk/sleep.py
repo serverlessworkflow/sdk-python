@@ -1,10 +1,10 @@
 class Sleep:
-    before = None
-    after = None
+    before: str = None
+    after: str = None
 
     def __init__(self,
-                 before=None,
-                 after=None,
+                 before: str = None,
+                 after: str = None,
                  **kwargs):
 
         # duplicated

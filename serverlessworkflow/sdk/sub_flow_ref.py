@@ -1,9 +1,24 @@
-from typing import Dict
+from enum import Enum
+
+from serverlessworkflow.sdk.enums import Invoke
 
 
-class Metadata(Dict[str, str]):
+class SubFlowRefOnParentComplete(Enum):
+    CONTINUE = "continue"
+    TERMINATE = "terminate"
+
+
+class SubFlowRef:
+    workflowId: str = None
+    version: str = None
+    onParentComplete = None
+    invoke: Invoke = None
 
     def __init__(self,
+                 workflowId: str = None,
+                 version: str = None,
+                 onParentComplete=None,
+                 invoke: Invoke = None,
                  **kwargs):
 
         # duplicated

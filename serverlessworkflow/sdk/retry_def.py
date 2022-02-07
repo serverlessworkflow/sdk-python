@@ -1,9 +1,23 @@
-from typing import Dict
+from typing import Union
 
 
-class Metadata(Dict[str, str]):
+class RetryDef:
+    name: str = None
+    delay: str = None
+    maxDelay: str = None
+    increment: str = None
+    multiplier: Union[int, str] = None
+    maxAttempts: Union[int, str] = None
+    jitter: Union[int, str] = None
 
     def __init__(self,
+                 name: str = None,
+                 delay: str = None,
+                 maxDelay: str = None,
+                 increment: str = None,
+                 multiplier: Union[int, str] = None,
+                 maxAttempts: Union[int, str] = None,
+                 jitter: Union[int, str] = None,
                  **kwargs):
 
         # duplicated

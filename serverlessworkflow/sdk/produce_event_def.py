@@ -1,9 +1,15 @@
-from typing import Dict
+from typing import Union, Dict
 
 
-class Metadata(Dict[str, str]):
+class ProduceEventDef:
+    eventRef: str = None
+    data: Union[str, Dict[str, Dict]] = None
+    contextAttributes: Dict[str, str] = None
 
     def __init__(self,
+                 eventRef: str = None,
+                 data: Union[str, Dict[str, Dict]] = None,
+                 contextAttributes: Dict[str, str] = None,
                  **kwargs):
 
         # duplicated

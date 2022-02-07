@@ -1,9 +1,10 @@
-from typing import Dict
-
-
-class Metadata(Dict[str, str]):
+class CronDef:
+    expression: str = None
+    validUntil: str = None
 
     def __init__(self,
+                 expression: str = None,
+                 validUntil: str = None,
                  **kwargs):
 
         # duplicated
