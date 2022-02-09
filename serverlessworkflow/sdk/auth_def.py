@@ -1,17 +1,26 @@
+from enum import Enum
 from typing import Union
 
-from serverlessworkflow.sdk.cron_def import CronDef
+from serverlessworkflow.sdk.basic_props_def import BasicPropsDef
+from serverlessworkflow.sdk.bearer_props_def import BearerPropsDef
+from serverlessworkflow.sdk.oauth2props_def import Oauth2PropsDef
 
 
-class Schedule:
-    interval: str = None
-    cron: Union[str, CronDef] = None
-    timezone: str = None
+class Scheme(Enum):
+    BASIC = "basic"
+    BEARER = "bearer"
+    OAUTH2 = "oauth2"
+
+
+class AuthDef:
+    name: str = None
+    scheme: Scheme = None
+    properties: Union[str, Union[BasicPropsDef, BearerPropsDef, Oauth2PropsDef]] = None
 
     def __init__(self,
-                 interval: str = None,
-                 cron: Union[str, CronDef] = None,
-                 timezone: str = None,
+                 name: str = None,
+                 scheme: Scheme = None,
+                 properties: Union[str, Union[BasicPropsDef, BearerPropsDef, Oauth2PropsDef]] = None,
                  **kwargs):
 
         # duplicated

@@ -1,9 +1,14 @@
-from typing import Dict
-
-
-class Metadata(Dict[str, str]):
+class ActionDataFilter:
+    fromStateData: str = None
+    useResults: bool = None
+    results: str = None
+    toStateData: str = None
 
     def __init__(self,
+                 fromStateData: str = None,
+                 useResults: bool = None,
+                 results: str = None,
+                 toStateData: str = None,
                  **kwargs):
 
         # duplicated

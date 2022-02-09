@@ -1,14 +1,20 @@
+from typing import Union
+
+from serverlessworkflow.sdk.end import End
+from serverlessworkflow.sdk.transition import Transition
+
+
 class Error:
-    errorRef = None
-    errorRefs = None
-    transition = None
-    end = None
+    errorRef: str = None
+    errorRefs: [str] = None
+    transition: Union[str, Transition] = None
+    end: Union[bool, End] = None
 
     def __init__(self,
-                 errorRef=None,
-                 errorRefs=None,
-                 transition=None,
-                 end=None,
+                 errorRef: str = None,
+                 errorRefs: [str] = None,
+                 transition: Union[str, Transition] = None,
+                 end: Union[bool, End] = None,
                  **kwargs):
 
         # duplicated

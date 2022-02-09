@@ -1,10 +1,10 @@
 class CorrelationDef:
-    contextAttributeName = None
-    contextAttributeValue = None
+    contextAttributeName: str = None
+    contextAttributeValue: str = None
 
     def __init__(self,
-                 contextAttributeName=None,
-                 contextAttributeValue=None,
+                 contextAttributeName: str = None,
+                 contextAttributeValue: str = None,
                  **kwargs):
 
         # duplicated

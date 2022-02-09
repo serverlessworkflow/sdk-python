@@ -1,9 +1,22 @@
-from typing import Dict
+from typing import Dict, Union
+
+from serverlessworkflow.sdk.enums import Invoke
 
 
-class Metadata(Dict[str, str]):
+class EventRef:
+    triggerEventRef: str = None
+    resultEventRef: str = None
+    resultEventTimeOut: str = None
+    data: Union[str, Dict[str, Dict]] = None
+    contextAttributes: Dict[str, str] = None
+    invoke: Invoke = None
 
     def __init__(self,
+                 triggerEventRef: str = None,
+                 resultEventRef: str = None,
+                 data: Union[str, Dict[str, Dict]] = None,
+                 contextAttributes: Dict[str, str] = None,
+                 invoke: Invoke = None,
                  **kwargs):
 
         # duplicated

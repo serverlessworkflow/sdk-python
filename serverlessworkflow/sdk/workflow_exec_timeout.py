@@ -1,12 +1,12 @@
-class WorkflowExecTimeout:
-    duration = None
-    interrupt = None
-    runBefore = None
+class WorkflowExecTimeOut:
+    duration: str = None
+    interrupt: bool = None
+    runBefore: str = None
 
     def __init__(self,
-                 duration=None,
-                 interrupt=None,
-                 runBefore=None,
+                 duration: str = None,
+                 interrupt: bool = None,
+                 runBefore: str = None,
                  **kwargs):
 
         # duplicated

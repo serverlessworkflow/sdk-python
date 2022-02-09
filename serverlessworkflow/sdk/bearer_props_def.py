@@ -1,9 +1,13 @@
-from typing import Dict
+from serverlessworkflow.sdk.metadata import Metadata
 
 
-class Metadata(Dict[str, str]):
+class BearerPropsDef:
+    token: str = None
+    metadata: Metadata = None
 
     def __init__(self,
+                 token: str = None,
+                 metadata: Metadata = None,
                  **kwargs):
 
         # duplicated

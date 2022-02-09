@@ -1,9 +1,12 @@
-from typing import Dict
-
-
-class Metadata(Dict[str, str]):
+class EventDataFilter:
+    useData: bool = None
+    data: str = None
+    toStateData: str = None
 
     def __init__(self,
+                 useData: bool = None,
+                 data: str = None,
+                 toStateData: str = None,
                  **kwargs):
 
         # duplicated

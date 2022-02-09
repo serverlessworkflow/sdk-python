@@ -1,10 +1,10 @@
-class StateExecTimeout:
-    single = None
-    total = None
+class StateExecTimeOut:
+    single: str = None
+    total: str = None
 
     def __init__(self,
-                 single=None,
-                 total=None,
+                 single: str = None,
+                 total: str = None,
                  **kwargs):
 
         # duplicated
