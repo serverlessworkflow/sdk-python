@@ -1,5 +1,9 @@
-from typing import Union
+from __future__ import annotations
 
+import copy
+
+from serverlessworkflow.sdk.hydration import HydratableParameter, UnionTypeOf, SimpleTypeOf, ComplexTypeOf, \
+    Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.transition import Transition
 
@@ -7,34 +11,21 @@ from serverlessworkflow.sdk.transition import Transition
 class TransitionDataCondition:
     name: str = None
     condition: str = None
-    transition: Union[str, Transition] = None
+    transition: (str | Transition) = None
     metadata: Metadata = None
 
     def __init__(self,
                  name: str = None,
                  condition: str = None,
-                 transition: Union[str, Transition] = None,
+                 transition: (str | Transition) = None,
                  metadata: Metadata = None,
                  **kwargs):
+        Fields(locals(), kwargs, TransitionDataCondition.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
+        if p_key == 'transition':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
+                                                                             ComplexTypeOf(Transition)]))
 
-            self.__setattr__(local.replace("_", ""), value)
-
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
-
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        return copy.deepcopy(p_value)

@@ -17,9 +17,12 @@ class TestWorkflowValidator(unittest.TestCase):
         self.assertEqual(len(examples), 9)
 
         for example in examples:
-            with open(examples_dir + "/" + example, "r") as swf_file:
-                swf_file_content = json.load(swf_file)
-                WorkflowValidator(Workflow(**swf_file_content)).validate()
+            with self.subTest(f"test_{example}"):
+
+                with open(examples_dir + "/" + example, "r") as swf_file:
+                    swf_file_content = json.load(swf_file)
+                    workflow = Workflow(**swf_file_content)
+                    WorkflowValidator(workflow).validate()
 
     def test_invalid_wf(self):
         wf_file = os.path.join(os.path.dirname(__file__), '../../examples', 'applicantrequest.json')

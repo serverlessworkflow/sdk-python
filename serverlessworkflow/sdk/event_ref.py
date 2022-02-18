@@ -1,42 +1,36 @@
-from typing import Dict, Union
+from __future__ import annotations
 
-from serverlessworkflow.sdk.enums import Invoke
+import copy
+
+from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, UnionTypeOf, SimpleTypeOf, \
+    Fields
 
 
 class EventRef:
     triggerEventRef: str = None
     resultEventRef: str = None
     resultEventTimeOut: str = None
-    data: Union[str, Dict[str, Dict]] = None
-    contextAttributes: Dict[str, str] = None
-    invoke: Invoke = None
+    data: (str | dict) = None
+    contextAttributes: dict[str, str] = None
+    invoke: str = None
 
     def __init__(self,
                  triggerEventRef: str = None,
                  resultEventRef: str = None,
-                 data: Union[str, Dict[str, Dict]] = None,
-                 contextAttributes: Dict[str, str] = None,
-                 invoke: Invoke = None,
+                 data: (str | dict) = None,
+                 contextAttributes: dict[str, str] = None,
+                 invoke: str = None,
                  **kwargs):
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+        Fields(locals(), kwargs, EventRef.f_hydration).set_to_object(self)
 
-            self.__setattr__(local.replace("_", ""), value)
+    @staticmethod
+    def f_hydration(p_key, p_value):
 
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'data':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str), ComplexTypeOf(dict)]))
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        if p_key == 'contextAttributes':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(dict))
+
+        return copy.deepcopy(p_value)

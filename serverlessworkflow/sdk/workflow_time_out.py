@@ -1,3 +1,6 @@
+import copy
+
+from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, Fields
 from serverlessworkflow.sdk.state_exec_timeout import StateExecTimeOut
 from serverlessworkflow.sdk.workflow_exec_timeout import WorkflowExecTimeOut
 
@@ -16,25 +19,15 @@ class WorkflowTimeOut:
                  branchExecTimeOut: str = None,  # BranchExecTimeOut
                  eventTimeOut: str = None,  # EventTimeOut
                  **kwargs):
+        Fields(locals(), kwargs, WorkflowTimeOut.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
 
-            self.__setattr__(local.replace("_", ""), value)
+        if p_key == 'workflowExecTimeOut':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(WorkflowExecTimeOut))
 
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'stateExecTimeOut':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(StateExecTimeOut))
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        return copy.deepcopy(p_value)

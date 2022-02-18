@@ -1,3 +1,6 @@
+import copy
+
+from serverlessworkflow.sdk.hydration import ArrayTypeOf, HydratableParameter, Fields
 from serverlessworkflow.sdk.produce_event_def import ProduceEventDef
 
 
@@ -11,25 +14,11 @@ class Transition:
                  produceEvents: [ProduceEventDef] = None,
                  compensate: bool = None,
                  **kwargs):
+        Fields(locals(), kwargs, Transition.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
+        if p_key == 'produceEvents':
+            return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(ProduceEventDef))
 
-            self.__setattr__(local.replace("_", ""), value)
-
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
-
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        return copy.deepcopy(p_value)

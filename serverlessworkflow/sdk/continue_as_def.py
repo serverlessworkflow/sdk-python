@@ -1,39 +1,34 @@
-from typing import Union, Dict
+from __future__ import annotations
 
+import copy
+
+from serverlessworkflow.sdk.hydration import ComplexTypeOf, SimpleTypeOf, UnionTypeOf, HydratableParameter, \
+    Fields
 from serverlessworkflow.sdk.workflow_exec_timeout import WorkflowExecTimeOut
 
 
 class ContinueAsDef:
     workflowId: str = None
     version: str = None
-    data: Union[str, Dict[str, Dict]] = None
+    data: (str | dict) = None
     workflowExecTimeOut: WorkflowExecTimeOut = None
 
     def __init__(self,
                  workflowId: str = None,
                  version: str = None,
-                 data: Union[str, Dict[str, Dict]] = None,
+                 data: (str | dict) = None,
                  workflowExecTimeOut: WorkflowExecTimeOut = None,
                  **kwargs):
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+        Fields(locals(), kwargs, ContinueAsDef.f_hydration).set_to_object(self)
 
-            self.__setattr__(local.replace("_", ""), value)
+    @staticmethod
+    def f_hydration(p_key, p_value):
 
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'data':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str), ComplexTypeOf(dict)]))
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        if p_key == 'workflowExecTimeOut':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(WorkflowExecTimeOut))
+
+        return copy.deepcopy(p_value)

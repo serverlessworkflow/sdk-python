@@ -1,7 +1,11 @@
+from __future__ import annotations
+
+import copy
 from enum import Enum
-from typing import Union, List
 
 from serverlessworkflow.sdk.correlation_def import CorrelationDef
+from serverlessworkflow.sdk.hydration import HydratableParameter, UnionTypeOf, ArrayTypeOf, ComplexTypeOf, \
+    Fields
 from serverlessworkflow.sdk.metadata import Metadata
 
 
@@ -15,7 +19,7 @@ class EventDef:
     source: str = None
     type: str = None
     kind: Kind = None
-    correlation: Union[CorrelationDef, List[CorrelationDef]] = None
+    correlation: (CorrelationDef | [CorrelationDef]) = None
     dataOnly: bool = None
     metadata: Metadata = None
 
@@ -24,29 +28,15 @@ class EventDef:
                  source: str = None,
                  type: str = None,
                  kind: Kind = None,
-                 correlation: Union[CorrelationDef, List[CorrelationDef]] = None,  # CorrelationDefs
+                 correlation: (CorrelationDef | [CorrelationDef]) = None,  # CorrelationDefs
                  dataOnly: bool = None,
                  metadata: Metadata = None,
                  **kwargs):
+        Fields(locals(), kwargs, EventDef.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
-
-            self.__setattr__(local.replace("_", ""), value)
-
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
-
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
+        if p_key == 'correlation':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([ComplexTypeOf(CorrelationDef),
+                                                                             ArrayTypeOf(CorrelationDef)]))
+        return copy.deepcopy(p_value)

@@ -1,43 +1,38 @@
-from typing import Union
+from __future__ import annotations
+
+import copy
 
 from serverlessworkflow.sdk.end import End
 from serverlessworkflow.sdk.event_data_filter import EventDataFilter
+from serverlessworkflow.sdk.hydration import HydratableParameter, UnionTypeOf, ComplexTypeOf, SimpleTypeOf, \
+    Fields
 from serverlessworkflow.sdk.metadata import Metadata
 
 
 class EndEventCondition:
     name: str = None
     eventRef: str = None
-    end: Union[bool, End] = None
+    end: (bool | End) = None
     eventDataFilter: EventDataFilter = None
     metadata: Metadata = None
 
     def __init__(self,
                  name: str = None,
                  eventRef: str = None,
-                 end: Union[bool, End] = None,
+                 end: (bool | End) = None,
                  eventDataFilter: EventDataFilter = None,
                  metadata: Metadata = None,
                  **kwargs):
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+        Fields(locals(), kwargs, EndEventCondition.f_hydration).set_to_object(self)
 
-            self.__setattr__(local.replace("_", ""), value)
+    @staticmethod
+    def f_hydration(p_key, p_value):
+        if p_key == 'end':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(bool),
+                                                                             ComplexTypeOf(End)]))
 
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'eventDataFilter':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(EventDataFilter))
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        return copy.deepcopy(p_value)

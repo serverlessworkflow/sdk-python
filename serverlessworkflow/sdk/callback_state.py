@@ -1,27 +1,32 @@
-from typing import Union
+from __future__ import annotations
+
+import copy
 
 from serverlessworkflow.sdk.action import Action
 from serverlessworkflow.sdk.callback_state_timeout import CallbackStateTimeOut
 from serverlessworkflow.sdk.end import End
 from serverlessworkflow.sdk.error import Error
 from serverlessworkflow.sdk.event_data_filter import EventDataFilter
+from serverlessworkflow.sdk.hydration import ComplexTypeOf, ArrayTypeOf, HydratableParameter, SimpleTypeOf, \
+    UnionTypeOf, Fields
 from serverlessworkflow.sdk.metadata import Metadata
+from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
 from serverlessworkflow.sdk.transition import Transition
 
 
-class CallbackState:
+class CallbackState(State):
     id: str = None
     name: str = None
-    type: 'callback' = None
+    type: str = None
     action: Action = None
     eventRef: str = None
     timeouts: CallbackStateTimeOut = None
     eventDataFilter: EventDataFilter = None
     stateDataFilter: StateDataFilter = None
     onErrors: [Error] = None
-    transition: Union[str, Transition] = None
-    end: Union[bool, End] = None
+    transition: (str | Transition) = None
+    end: (bool | End) = None
     compensatedBy: str = None
     usedForCompensation: bool = None
     metadata: Metadata = None
@@ -29,38 +34,46 @@ class CallbackState:
     def __init__(self,
                  id: str = None,
                  name: str = None,
-                 type: 'callback' = None,
+                 type: str = None,
                  action: Action = None,
                  eventRef: str = None,
                  timeouts: CallbackStateTimeOut = None,
                  eventDataFilter: EventDataFilter = None,
                  stateDataFilter: StateDataFilter = None,
                  onErrors: [Error] = None,
-                 transition: Union[str, Transition] = None,
-                 end: Union[bool, End] = None,
+                 transition: (str | Transition) = None,
+                 end: (bool | End) = None,
                  compensatedBy: str = None,
                  usedForCompensation: bool = None,
                  metadata: Metadata = None,
                  **kwargs):
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
 
-            self.__setattr__(local.replace("_", ""), value)
+        Fields(locals(), kwargs, Fields.f_hydration).set_to_object(self)
 
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
 
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'action':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(Action))
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        if p_key == 'timeouts':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(CallbackStateTimeOut))
+
+        if p_key == 'eventDataFilter':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(EventDataFilter))
+
+        if p_key == 'stateDataFilter':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(StateDataFilter))
+
+        if p_key == 'onErrors':
+            return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(Error))
+
+        if p_key == 'transition':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
+                                                                             ComplexTypeOf(Transition)]))
+
+        if p_key == 'end':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(bool),
+                                                                             ComplexTypeOf(End)]))
+
+        return copy.deepcopy(p_value)
