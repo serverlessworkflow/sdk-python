@@ -1,39 +1,25 @@
-from typing import Dict
+import copy
 
-from serverlessworkflow.sdk.enums import Invoke
+from serverlessworkflow.sdk.hydration import ComplexTypeOf, HydratableParameter, Fields
 
 
 class FunctionRef:
     refName: str = None
-    arguments: Dict[str, Dict] = None
+    arguments: dict[str, dict] = None
     selectionSet: str = None
-    invoke: Invoke = None
+    invoke: str = None
 
     def __init__(self,
                  refName: str = None,
-                 arguments: Dict[str, Dict] = None,
+                 arguments: dict[str, dict] = None,
                  selectionSet: str = None,
-                 invoke: Invoke = None,
+                 invoke: str = None,
                  **kwargs):
+        Fields(locals(), kwargs, FunctionRef.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
+        if p_key == 'arguments':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(dict))
 
-            self.__setattr__(local.replace("_", ""), value)
-
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
-
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        return copy.deepcopy(p_value)

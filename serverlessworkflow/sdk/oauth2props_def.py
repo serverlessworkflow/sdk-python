@@ -1,17 +1,10 @@
-from enum import Enum
-
+from serverlessworkflow.sdk.hydration import Fields
 from serverlessworkflow.sdk.metadata import Metadata
-
-
-class Oauth2PropsDefGrantType(Enum):
-    password = "password"
-    clientCredentials = "clientCredentials"
-    tokenExchange = "tokenExchange"
 
 
 class Oauth2PropsDef:
     authority: str = None
-    grantType: Oauth2PropsDefGrantType = None
+    grantType: str = None
     clientId: str = None
     clientSecret: str = None
     scopes: [str] = None
@@ -25,7 +18,7 @@ class Oauth2PropsDef:
 
     def __init__(self,
                  authority: str = None,
-                 grantType: Oauth2PropsDefGrantType = None,
+                 grantType: str = None,
                  clientId: str = None,
                  clientSecret: str = None,
                  scopes: [str] = None,
@@ -37,25 +30,4 @@ class Oauth2PropsDef:
                  requestedIssuer: str = None,
                  metadata: Metadata = None,
                  **kwargs):
-
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
-
-            self.__setattr__(local.replace("_", ""), value)
-
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
-
-        self.__setattr__(k.replace("_", ""), value)
-        # duplicated
+        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)

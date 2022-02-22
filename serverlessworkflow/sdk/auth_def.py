@@ -1,46 +1,36 @@
-from enum import Enum
-from typing import Union
+from __future__ import annotations
+
+import copy
 
 from serverlessworkflow.sdk.basic_props_def import BasicPropsDef
 from serverlessworkflow.sdk.bearer_props_def import BearerPropsDef
+from serverlessworkflow.sdk.hydration import Fields
 from serverlessworkflow.sdk.oauth2props_def import Oauth2PropsDef
-
-
-class Scheme(Enum):
-    BASIC = "basic"
-    BEARER = "bearer"
-    OAUTH2 = "oauth2"
 
 
 class AuthDef:
     name: str = None
-    scheme: Scheme = None
-    properties: Union[str, Union[BasicPropsDef, BearerPropsDef, Oauth2PropsDef]] = None
+    scheme: str = None
+    properties: (str | (BasicPropsDef | BearerPropsDef | Oauth2PropsDef)) = None
 
     def __init__(self,
                  name: str = None,
-                 scheme: Scheme = None,
-                 properties: Union[str, Union[BasicPropsDef, BearerPropsDef, Oauth2PropsDef]] = None,
+                 scheme: str = None,
+                 properties: (str | (BasicPropsDef | BearerPropsDef | Oauth2PropsDef)) = None,
                  **kwargs):
+        Fields(locals(), kwargs, Fields.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
 
-            self.__setattr__(local.replace("_", ""), value)
+        result = copy.deepcopy(p_value)
 
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'properties':
+            if p_value["username"] and p_value["password"]:
+                return BasicPropsDef(p_value);
+            if p_value["token"]:
+                return BearerPropsDef(p_value);
+            if p_value["grantType"]:
+                return Oauth2PropsDef(p_value);
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        return result

@@ -1,37 +1,28 @@
-from typing import Union
+from __future__ import annotations
+
+import copy
 
 from serverlessworkflow.sdk.cron_def import CronDef
+from serverlessworkflow.sdk.hydration import HydratableParameter, SimpleTypeOf, ComplexTypeOf, UnionTypeOf, \
+    Fields
 
 
 class Schedule:
     interval: str = None
-    cron: Union[str, CronDef] = None
+    cron: (str | CronDef) = None
     timezone: str = None
 
     def __init__(self,
                  interval: str = None,
-                 cron: Union[str, CronDef] = None,
+                 cron: (str | CronDef) = None,
                  timezone: str = None,
                  **kwargs):
+        Fields(locals(), kwargs, Schedule.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
+        if p_key == 'cron':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
+                                                                             ComplexTypeOf(CronDef)]))
 
-            self.__setattr__(local.replace("_", ""), value)
-
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
-
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        return copy.deepcopy(p_value)

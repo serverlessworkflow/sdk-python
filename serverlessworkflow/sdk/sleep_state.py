@@ -1,23 +1,28 @@
-from typing import Union
+from __future__ import annotations
+
+import copy
 
 from serverlessworkflow.sdk.end import End
 from serverlessworkflow.sdk.error import Error
+from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, UnionTypeOf, SimpleTypeOf, \
+    ArrayTypeOf, Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.sleep_state_timeout import SleepStateTimeOut
+from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
 from serverlessworkflow.sdk.transition import Transition
 
 
-class SleepState:
+class SleepState(State):
     id: str = None
     name: str = None
     type: str = None
-    end: Union[bool, End] = None
+    end: (bool | End) = None
     stateDataFilter: StateDataFilter = None
     duration: str = None
     timeouts: SleepStateTimeOut = None
     onErrors: [Error] = None
-    transition: Union[str, Transition] = None
+    transition: (str | Transition) = None
     compensatedBy: str = None
     usedForCompensation: bool = None
     metadata: Metadata = None
@@ -26,35 +31,36 @@ class SleepState:
                  id: str = None,
                  name: str = None,
                  type: str = None,
-                 end: Union[bool, End] = None,
+                 end: (bool | End) = None,
                  stateDataFilter: StateDataFilter = None,
                  duration: str = None,
                  timeouts: SleepStateTimeOut = None,
                  onErrors: [Error] = None,
-                 transition: Union[str, Transition] = None,
+                 transition: (str | Transition) = None,
                  compensatedBy: str = None,
                  usedForCompensation: bool = None,
                  metadata: Metadata = None,
                  **kwargs):
+        Fields(locals(), kwargs, SleepState.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
 
-            self.__setattr__(local.replace("_", ""), value)
+        if p_key == 'end':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(bool),
+                                                                             ComplexTypeOf(End)]))
 
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'stateDataFilter':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(StateDataFilter))
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        if p_key == 'timeouts':
+            return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(SleepStateTimeOut))
+
+        if p_key == 'onErrors':
+            return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(Error))
+
+        if p_key == 'transition':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
+                                                                             ComplexTypeOf(Transition)]))
+
+        return copy.deepcopy(p_value)

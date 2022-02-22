@@ -1,40 +1,40 @@
-from typing import Union
+from __future__ import annotations
+
+import copy
 
 from serverlessworkflow.sdk.end import End
+from serverlessworkflow.sdk.hydration import HydratableParameter, ArrayTypeOf, SimpleTypeOf, ComplexTypeOf, \
+    UnionTypeOf, Fields
 from serverlessworkflow.sdk.transition import Transition
 
 
 class Error:
     errorRef: str = None
     errorRefs: [str] = None
-    transition: Union[str, Transition] = None
-    end: Union[bool, End] = None
+    transition: (str | Transition) = None
+    end: (bool | End) = None
 
     def __init__(self,
                  errorRef: str = None,
                  errorRefs: [str] = None,
-                 transition: Union[str, Transition] = None,
-                 end: Union[bool, End] = None,
+                 transition: (str | Transition) = None,
+                 end: (bool | End) = None,
                  **kwargs):
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+        Fields(locals(), kwargs, Error.f_hydration).set_to_object(self)
 
-            self.__setattr__(local.replace("_", ""), value)
+    @staticmethod
+    def f_hydration(p_key, p_value):
 
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'errorRefs':
+            return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(ComplexTypeOf(Error)))
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        if p_key == 'transition':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
+                                                                             ComplexTypeOf(Transition)]))
+
+        if p_key == 'end':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(bool),
+                                                                             ComplexTypeOf(End)]))
+
+        return copy.deepcopy(p_value)

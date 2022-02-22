@@ -1,6 +1,10 @@
-from typing import Union
+from __future__ import annotations
+
+import copy
 
 from serverlessworkflow.sdk.continue_as_def import ContinueAsDef
+from serverlessworkflow.sdk.hydration import HydratableParameter, ArrayTypeOf, UnionTypeOf, SimpleTypeOf, \
+    ComplexTypeOf, Fields
 from serverlessworkflow.sdk.produce_event_def import ProduceEventDef
 
 
@@ -8,33 +12,24 @@ class End:
     terminate: bool = None
     produceEvents: [ProduceEventDef] = None
     compensate: bool = None
-    continueAs: Union[str, ContinueAsDef] = None
+    continueAs: (str | ContinueAsDef) = None
 
     def __init__(self,
                  terminate: bool = None,
                  produceEvents: [ProduceEventDef] = None,
                  compensate: bool = None,
-                 continueAs: Union[str, ContinueAsDef] = None,
+                 continueAs: (str | ContinueAsDef) = None,
                  **kwargs):
+        Fields(locals(), kwargs, End.f_hydration).set_to_object(self)
 
-        # duplicated
-        for local in list(locals()):
-            if local in ["self", "kwargs"]:
-                continue
-            value = locals().get(local)
-            if not value:
-                continue
-            if value == "true":
-                value = True
-            # duplicated
+    @staticmethod
+    def f_hydration(p_key, p_value):
 
-            self.__setattr__(local.replace("_", ""), value)
+        if p_key == 'produceEvents':
+            return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(ProduceEventDef))
 
-        # duplicated
-        for k in kwargs.keys():
-            value = kwargs[k]
-            if value == "true":
-                value = True
+        if p_key == 'continueAs':
+            return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
+                                                                             ComplexTypeOf(ContinueAsDef)]))
 
-            self.__setattr__(k.replace("_", ""), value)
-            # duplicated
+        return copy.deepcopy(p_value)
