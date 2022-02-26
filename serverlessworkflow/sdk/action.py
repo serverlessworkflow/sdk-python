@@ -23,7 +23,6 @@ class Action:
     retryableErrors: [str] = None
     actionDataFilter: ActionDataFilter = None
     condition: str = None
-    jespin: str = None
 
     def __init__(self,
                  id: str = None,
