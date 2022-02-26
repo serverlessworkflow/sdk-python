@@ -1,5 +1,7 @@
+import json
 import os
 import unittest
+from os import listdir
 
 from serverlessworkflow.sdk.action import Action
 from serverlessworkflow.sdk.function import Function
@@ -8,7 +10,6 @@ from serverlessworkflow.sdk.workflow import Workflow
 
 
 class TestWorkflow(unittest.TestCase):
-
     workflow = Workflow(id_="greeting",
                         name="Greeting Workflow",
                         description="Greet Someone",
@@ -106,8 +107,26 @@ functions:
         self.assertEqual(expected, self.workflow.to_yaml())
 
     def test_workflow_from_source_json(self):
-        wf_file = os.path.join(os.path.dirname(__file__), 'test_workflow.json')
-        self.assert_test_workflow_file(wf_file)
+        examples_dir = os.path.join(os.path.dirname(__file__), '../../examples')
+        examples = listdir(examples_dir)
+        self.assertEqual(len(examples), 10)
+
+        for example in examples:
+            with self.subTest(f"test_{example}"):
+                with open(examples_dir + "/" + example, "r") as swf_file:
+                    workflow = Workflow.from_source(swf_file)
+                    self.assertTrue(isinstance(workflow, Workflow))
+
+    def test_instance_workflow_class(self):
+        examples_dir = os.path.join(os.path.dirname(__file__), '../../examples')
+        examples = listdir(examples_dir)
+        self.assertEqual(len(examples), 10)
+
+        for example in examples:
+            with self.subTest(f"test_{example}"):
+                with open(examples_dir + "/" + example, "r") as swf_file:
+                    workflow = Workflow(**json.load(swf_file))
+                    self.assertTrue(isinstance(workflow, Workflow))
 
     def test_workflow_from_source_yaml(self):
         wf_file = os.path.join(os.path.dirname(__file__), 'test_workflow.yaml')
@@ -125,4 +144,3 @@ functions:
             self.assertTrue(isinstance(workflow.states[0].actions[0], Action))
             self.assertTrue(isinstance(workflow.states[0].actions[0].functionRef, FunctionRef))
             self.assertTrue(isinstance(workflow.functions[0], Function))
-
