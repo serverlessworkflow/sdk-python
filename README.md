@@ -17,7 +17,7 @@ With the SDK you can:
 - pipenv required `pip install pipenv`
 
 ```
-pipenv install
+pipenv install --dev 
 
 pipenv shell
 
