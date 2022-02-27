@@ -5,7 +5,7 @@ Provides the Python API/SPI for the [Serverless Workflow Specification](https://
 > This is a WIP implementation
 
 With the SDK you can:
-* **WIP** Programmatically build workflow definitions 
+* Programmatically build workflow definitions 
 * Parse workflow JSON and YAML definitions
 * Validate workflow definitions
 
@@ -24,19 +24,43 @@ pipenv shell
 python setup.py pytest
 ```
 
-## **WIP** Programmatically build workflow definitions 
+## Programmatically build workflow definitions 
 
 ```
-workflow = Workflow(id_="greeting",
-                    name="Greeting Workflow",
-                    description="Greet Someone",
-                    version='1.0',
-                    specVersion='0.8',
-                    start="Greet",
-                    states=[],
-                    functions=[]
-)             
+ workflow = Workflow(
+        id_="greeting",
+        name="Greeting Workflow",
+        description="Greet Someone",
+        version='1.0',
+        specVersion='0.8',
+        start="Greet",
+        states=[
+            OperationState(
+                name="Greet",
+                type="operation",
+                actions=[
+                    Action(
+                        functionRef=FunctionRef(
+                            refName="greetingFunction",
+                            arguments={
+                                "name": "${ .person.name }"
+                            }
+                        ),
+                        actionDataFilter=ActionDataFilter(
+                            results="${ .greeting }"
+                        )
+                    )
+                ],
+                end=True
+            )
+        ],
+        functions=[
+            Function(name="greetingFunction",
+                     operation="file://myapis/greetingapis.json#greeting")
+        ]
+    )
 ```
+You can see a full example in the [test_workflow.py](tests/serverlessworkflow/sdk/test_workflow.py) file
 
 ## Parse workflow JSON and YAML definitions
 

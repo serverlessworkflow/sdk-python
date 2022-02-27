@@ -6,7 +6,7 @@ from serverlessworkflow.sdk.databased_switch_state_timeout import DataBasedSwitc
 from serverlessworkflow.sdk.default_condition_def import DefaultConditionDef
 from serverlessworkflow.sdk.end_data_condition import EndDataCondition
 from serverlessworkflow.sdk.error import Error
-from serverlessworkflow.sdk.hydration import HydratableParameter, UnionTypeOf, ComplexTypeOf, ArrayTypeOf, \
+from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, ArrayTypeOf, \
     Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.state import State
@@ -52,7 +52,8 @@ class DataBasedSwitchState(State):
             return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(DataBasedSwitchStateTime0ut))
 
         if p_key == 'dataConditions':
-            return [DataBasedSwitchState.hydrate_state(v) if type(v) is not (TransitionDataCondition or EndDataCondition) else v for v in p_value]
+            return [DataBasedSwitchState.hydrate_state(v) if not (
+                isinstance(v, TransitionDataCondition or EndDataCondition)) else v for v in p_value]
 
         if p_key == 'onErrors':
             return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(Error))

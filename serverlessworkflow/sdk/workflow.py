@@ -142,7 +142,7 @@ class Workflow:
                                                                              ArrayTypeOf(AuthDef)]))
 
         if p_key == 'states':
-            return [Workflow.hydrate_state(v) if type(v) is not State else v for v in p_value]
+            return [Workflow.hydrate_state(v) if not isinstance(v,State) else v for v in p_value]
 
         if p_key == 'functions':
             return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
