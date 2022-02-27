@@ -2,8 +2,6 @@
 
 Provides the Python API/SPI for the [Serverless Workflow Specification](https://github.com/serverlessworkflow/specification)
 
-> This is a WIP implementation
-
 With the SDK you can:
 * Programmatically build workflow definitions 
 * Parse workflow JSON and YAML definitions
