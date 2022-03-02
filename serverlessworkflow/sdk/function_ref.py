@@ -11,7 +11,7 @@ class FunctionRef:
 
     def __init__(self,
                  refName: str = None,
-                 arguments: dict[str, dict] = None,
+                 arguments: dict[str, any] = None,
                  selectionSet: str = None,
                  invoke: str = None,
                  **kwargs):

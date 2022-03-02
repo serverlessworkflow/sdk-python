@@ -6,7 +6,7 @@ from serverlessworkflow.sdk.default_condition_def import DefaultConditionDef
 from serverlessworkflow.sdk.end_event_condition import EndEventCondition
 from serverlessworkflow.sdk.error import Error
 from serverlessworkflow.sdk.event_based_switch_state_timeout import EventBasedSwitchStateTimeOut
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, UnionTypeOf, ArrayTypeOf, \
+from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, ArrayTypeOf, \
     Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.state import State
@@ -52,7 +52,8 @@ class EventBasedSwitchState(State):
             return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(EventBasedSwitchStateTimeOut))
 
         if p_key == 'eventConditions':
-            return [EventBasedSwitchState.hydrate_state(v) if type(v) is not (TransitionEventCondition or EndEventCondition) else v for v in p_value]
+            return [EventBasedSwitchState.hydrate_state(v) if not (
+                isinstance(v, TransitionEventCondition or EndEventCondition)) else v for v in p_value]
 
         if p_key == 'onErrors':
             return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(Error))
