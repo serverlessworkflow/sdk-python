@@ -1,9 +1,9 @@
 import copy
 
-from serverlessworkflow.sdk.hydration import ComplexTypeOf, HydratableParameter, Fields
+from serverlessworkflow.sdk.swf_base import ComplexTypeOf, HydratableParameter, SwfBase
 
 
-class FunctionRef:
+class FunctionRef(SwfBase):
     refName: str = None
     arguments: dict[str, dict] = None
     selectionSet: str = None
@@ -15,7 +15,7 @@ class FunctionRef:
                  selectionSet: str = None,
                  invoke: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, FunctionRef.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, FunctionRef.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

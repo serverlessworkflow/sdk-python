@@ -18,7 +18,7 @@ class WorkflowValidator:
             WorkflowValidator.json_schema_content = file_json_schema.json()
 
     def validate(self):
-        workflow = json.loads(json.dumps(self.workflow, default=lambda o: o.__dict__))
+        workflow = json.loads(self.workflow.to_json())
         validate(workflow, self.json_schema_content)
 
     def __repr__(self):

@@ -1,7 +1,7 @@
-from serverlessworkflow.sdk.hydration import Fields
+from serverlessworkflow.sdk.swf_base import SwfBase
 
 
-class EventDataFilter:
+class EventDataFilter(SwfBase):
     useData: bool = None
     data: str = None
     toStateData: str = None
@@ -11,4 +11,4 @@ class EventDataFilter:
                  data: str = None,
                  toStateData: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration)

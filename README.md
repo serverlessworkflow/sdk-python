@@ -7,6 +7,10 @@ With the SDK you can:
 * Parse workflow JSON and YAML definitions
 * Validate workflow definitions
 
+### Status
+
+Current sdk version conforms to the [Serverless Workflow specification v0.8](https://github.com/serverlessworkflow/specification/tree/0.8.x).
+
 
 ## Install dependencies and run test 
 
@@ -26,7 +30,7 @@ python setup.py pytest
 
 ```
  workflow = Workflow(
-        id_="greeting",
+        id="greeting",
         name="Greeting Workflow",
         description="Greet Someone",
         version='1.0',

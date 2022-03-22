@@ -2,10 +2,10 @@ import copy
 
 from serverlessworkflow.sdk.action import Action
 from serverlessworkflow.sdk.branch_timeout import BranchTimeOut
-from serverlessworkflow.sdk.hydration import ArrayTypeOf, ComplexTypeOf, HydratableParameter, Fields
+from serverlessworkflow.sdk.swf_base import ArrayTypeOf, ComplexTypeOf, HydratableParameter, SwfBase
 
 
-class Branch:
+class Branch(SwfBase):
     name: str = None
     timeouts: BranchTimeOut = None
     actions: [Action] = None
@@ -15,7 +15,8 @@ class Branch:
                  timeouts: BranchTimeOut = None,
                  actions: [Action] = None,
                  **kwargs):
-        Fields(locals(), kwargs, Branch.f_hydration).set_to_object(self)
+
+        SwfBase.__init__(self, locals(), kwargs, Branch.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

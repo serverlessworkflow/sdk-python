@@ -1,7 +1,7 @@
-from serverlessworkflow.sdk.hydration import Fields
+from serverlessworkflow.sdk.swf_base import SwfBase
 
 
-class WorkflowExecTimeOut:
+class WorkflowExecTimeOut(SwfBase):
     duration: str = None
     interrupt: bool = None
     runBefore: str = None
@@ -11,4 +11,4 @@ class WorkflowExecTimeOut:
                  interrupt: bool = None,
                  runBefore: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration)

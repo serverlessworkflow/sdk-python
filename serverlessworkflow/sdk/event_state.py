@@ -5,16 +5,16 @@ import copy
 from serverlessworkflow.sdk.end import End
 from serverlessworkflow.sdk.error import Error
 from serverlessworkflow.sdk.event_state_timeout import EventStateTimeOut
-from serverlessworkflow.sdk.hydration import ArrayTypeOf, HydratableParameter, ComplexTypeOf, UnionTypeOf, \
-    SimpleTypeOf, Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.on_events import OnEvents
 from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
+from serverlessworkflow.sdk.swf_base import ArrayTypeOf, HydratableParameter, ComplexTypeOf, UnionTypeOf, \
+    SimpleTypeOf, SwfBase
 from serverlessworkflow.sdk.transition import Transition
 
 
-class EventState(State):
+class EventState(State, SwfBase):
     id: str = None
     name: str = None
     type: str = None
@@ -43,11 +43,12 @@ class EventState(State):
                  metadata: Metadata = None,
                  **kwargs):
 
-        Fields(locals(), kwargs, EventState.f_hydration).set_to_object(self)
+        _default_values = {'type': 'event', 'exclusive': True, }
+        SwfBase.__init__(self, locals(), kwargs, EventState.f_hydration,
+                         _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'onEvents':
             return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(OnEvents))
 

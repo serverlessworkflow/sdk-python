@@ -3,12 +3,11 @@ from __future__ import annotations
 import copy
 
 from serverlessworkflow.sdk.end import End
-from serverlessworkflow.sdk.hydration import SimpleTypeOf, ComplexTypeOf, UnionTypeOf, HydratableParameter, \
-    Fields
 from serverlessworkflow.sdk.metadata import Metadata
+from serverlessworkflow.sdk.swf_base import SimpleTypeOf, ComplexTypeOf, UnionTypeOf, HydratableParameter, SwfBase
 
 
-class EndDataCondition:
+class EndDataCondition(SwfBase):
     name: str = None
     condition: str = None
     end: (bool | End) = None
@@ -20,7 +19,7 @@ class EndDataCondition:
                  end: (bool | End) = None,
                  metadata: Metadata = None,
                  **kwargs):
-        Fields(locals(), kwargs, EndDataCondition.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, EndDataCondition.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

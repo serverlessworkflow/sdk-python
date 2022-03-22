@@ -4,12 +4,11 @@ import copy
 
 from serverlessworkflow.sdk.end import End
 from serverlessworkflow.sdk.event_data_filter import EventDataFilter
-from serverlessworkflow.sdk.hydration import HydratableParameter, UnionTypeOf, ComplexTypeOf, SimpleTypeOf, \
-    Fields
 from serverlessworkflow.sdk.metadata import Metadata
+from serverlessworkflow.sdk.swf_base import HydratableParameter, UnionTypeOf, ComplexTypeOf, SimpleTypeOf, SwfBase
 
 
-class EndEventCondition:
+class EndEventCondition(SwfBase):
     name: str = None
     eventRef: str = None
     end: (bool | End) = None
@@ -24,7 +23,7 @@ class EndEventCondition:
                  metadata: Metadata = None,
                  **kwargs):
 
-        Fields(locals(), kwargs, EndEventCondition.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, EndEventCondition.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

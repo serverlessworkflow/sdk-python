@@ -1,7 +1,7 @@
-from serverlessworkflow.sdk.hydration import Fields
+from serverlessworkflow.sdk.swf_base import SwfBase
 
 
-class CronDef:
+class CronDef(SwfBase):
     expression: str = None
     validUntil: str = None
 
@@ -9,4 +9,4 @@ class CronDef:
                  expression: str = None,
                  validUntil: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration)

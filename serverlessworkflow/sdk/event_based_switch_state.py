@@ -6,15 +6,14 @@ from serverlessworkflow.sdk.default_condition_def import DefaultConditionDef
 from serverlessworkflow.sdk.end_event_condition import EndEventCondition
 from serverlessworkflow.sdk.error import Error
 from serverlessworkflow.sdk.event_based_switch_state_timeout import EventBasedSwitchStateTimeOut
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, ArrayTypeOf, \
-    Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ComplexTypeOf, ArrayTypeOf, SwfBase
 from serverlessworkflow.sdk.transition_event_condition import TransitionEventCondition
 
 
-class EventBasedSwitchState(State):
+class EventBasedSwitchState(State, SwfBase):
     id: str = None
     name: str = None
     type: str = None
@@ -40,11 +39,13 @@ class EventBasedSwitchState(State):
                  usedForCompensation: bool = None,
                  metadata: Metadata = None,
                  **kwargs):
-        Fields(locals(), kwargs, EventBasedSwitchState.f_hydration).set_to_object(self)
+
+        _default_values = {'type': 'switch', 'usedForCompensation': False}
+        SwfBase.__init__(self, locals(), kwargs, EventBasedSwitchState.f_hydration,
+                         _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'stateDataFilter':
             return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(StateDataFilter))
 
@@ -65,7 +66,6 @@ class EventBasedSwitchState(State):
 
     @staticmethod
     def hydrate_state(event):
-
         state = State(**event)
         if hasattr(state, "transition"):
             return TransitionEventCondition(**event)

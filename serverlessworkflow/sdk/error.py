@@ -3,12 +3,12 @@ from __future__ import annotations
 import copy
 
 from serverlessworkflow.sdk.end import End
-from serverlessworkflow.sdk.hydration import HydratableParameter, ArrayTypeOf, SimpleTypeOf, ComplexTypeOf, \
-    UnionTypeOf, Fields
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ArrayTypeOf, SimpleTypeOf, ComplexTypeOf, \
+    UnionTypeOf, SwfBase
 from serverlessworkflow.sdk.transition import Transition
 
 
-class Error:
+class Error(SwfBase):
     errorRef: str = None
     errorRefs: [str] = None
     transition: (str | Transition) = None
@@ -21,11 +21,10 @@ class Error:
                  end: (bool | End) = None,
                  **kwargs):
 
-        Fields(locals(), kwargs, Error.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, Error.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'errorRefs':
             return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(ComplexTypeOf(Error)))
 

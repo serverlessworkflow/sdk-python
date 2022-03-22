@@ -3,16 +3,15 @@ from __future__ import annotations
 import copy
 
 from serverlessworkflow.sdk.end import End
-from serverlessworkflow.sdk.hydration import HydratableParameter, UnionTypeOf, SimpleTypeOf, ComplexTypeOf, \
-    Fields
 from serverlessworkflow.sdk.inject_state_timeout import InjectStateTimeOut
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
+from serverlessworkflow.sdk.swf_base import HydratableParameter, UnionTypeOf, SimpleTypeOf, ComplexTypeOf, SwfBase
 from serverlessworkflow.sdk.transition import Transition
 
 
-class InjectState(State):
+class InjectState(State, SwfBase):
     id: str = None
     name: str = None
     type: str = None
@@ -38,14 +37,16 @@ class InjectState(State):
                  usedForCompensation: bool = None,
                  metadata: Metadata = None,
                  **kwargs):
-        Fields(locals(), kwargs, InjectState.f_hydration).set_to_object(self)
+
+        _default_values = {'type': 'inject', 'usedForCompensation': False}
+        SwfBase.__init__(self, locals(), kwargs, InjectState.f_hydration,
+                         _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'end':
             return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(bool),
-                                                                            ComplexTypeOf(End)]))
+                                                                             ComplexTypeOf(End)]))
         if p_key == 'data':
             return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
                                                                              ComplexTypeOf(dict)]))

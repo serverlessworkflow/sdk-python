@@ -1,13 +1,13 @@
-from serverlessworkflow.sdk.hydration import Fields
+from serverlessworkflow.sdk.swf_base import SwfBase
 
 
-class State:
+class State(SwfBase):
     type: str = None
 
     def __init__(self,
                  type: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration)
 
     def is_event_state(self):
         return self.type == 'event'

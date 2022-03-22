@@ -3,12 +3,12 @@ from __future__ import annotations
 import copy
 
 from serverlessworkflow.sdk.continue_as_def import ContinueAsDef
-from serverlessworkflow.sdk.hydration import HydratableParameter, ArrayTypeOf, UnionTypeOf, SimpleTypeOf, \
-    ComplexTypeOf, Fields
 from serverlessworkflow.sdk.produce_event_def import ProduceEventDef
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ArrayTypeOf, UnionTypeOf, SimpleTypeOf, \
+    ComplexTypeOf, SwfBase
 
 
-class End:
+class End(SwfBase):
     terminate: bool = None
     produceEvents: [ProduceEventDef] = None
     compensate: bool = None
@@ -20,11 +20,13 @@ class End:
                  compensate: bool = None,
                  continueAs: (str | ContinueAsDef) = None,
                  **kwargs):
-        Fields(locals(), kwargs, End.f_hydration).set_to_object(self)
+
+        _default_values = {'compensate': False, 'terminate': False, }
+        SwfBase.__init__(self, locals(), kwargs, End.f_hydration,
+                         _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'produceEvents':
             return HydratableParameter(value=p_value).hydrateAs(ArrayTypeOf(ProduceEventDef))
 

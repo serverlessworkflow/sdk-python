@@ -7,15 +7,15 @@ from serverlessworkflow.sdk.callback_state_timeout import CallbackStateTimeOut
 from serverlessworkflow.sdk.end import End
 from serverlessworkflow.sdk.error import Error
 from serverlessworkflow.sdk.event_data_filter import EventDataFilter
-from serverlessworkflow.sdk.hydration import ComplexTypeOf, ArrayTypeOf, HydratableParameter, SimpleTypeOf, \
-    UnionTypeOf, Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
+from serverlessworkflow.sdk.swf_base import ComplexTypeOf, ArrayTypeOf, HydratableParameter, SimpleTypeOf, \
+    UnionTypeOf, SwfBase
 from serverlessworkflow.sdk.transition import Transition
 
 
-class CallbackState(State):
+class CallbackState(State, SwfBase):
     id: str = None
     name: str = None
     type: str = None
@@ -48,11 +48,11 @@ class CallbackState(State):
                  metadata: Metadata = None,
                  **kwargs):
 
-        Fields(locals(), kwargs, Fields.f_hydration).set_to_object(self)
+        _default_values = {'type': 'callback', 'usedForCompensation': False, }
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration, _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'action':
             return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(Action))
 

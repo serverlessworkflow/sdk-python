@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import copy
 
-from serverlessworkflow.sdk.hydration import ComplexTypeOf, SimpleTypeOf, UnionTypeOf, HydratableParameter, \
-    Fields
+from serverlessworkflow.sdk.swf_base import ComplexTypeOf, SimpleTypeOf, UnionTypeOf, HydratableParameter, SwfBase
 from serverlessworkflow.sdk.workflow_exec_timeout import WorkflowExecTimeOut
 
 
-class ContinueAsDef:
+class ContinueAsDef(SwfBase):
     workflowId: str = None
     version: str = None
     data: (str | dict) = None
@@ -20,11 +19,10 @@ class ContinueAsDef:
                  workflowExecTimeOut: WorkflowExecTimeOut = None,
                  **kwargs):
 
-        Fields(locals(), kwargs, ContinueAsDef.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, ContinueAsDef.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'data':
             return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str), ComplexTypeOf(dict)]))
 
