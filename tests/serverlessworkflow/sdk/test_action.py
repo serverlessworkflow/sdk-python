@@ -14,25 +14,23 @@ class TestAction(unittest.TestCase):
         self.assertTrue(action.functionRef.refName, "refNameTest")
         self.assertTrue(isinstance(action.retryableErrors, list))
 
-
     def test_load_retryable_errors(self):
         action_data = {
             'retryableErrors': ['err1', 'err2']}
         action = Action(**action_data)
         self.assertTrue(isinstance(action.retryableErrors, list))
 
-
     def test_dinamic_load(self):
         action_data = {
-                                        "functionRef": {
-                                            "refName": "greetingFunction",
-                                            "arguments": {
-                                                "name": "${ .person.name }"
-                                            }
-                                        },
-                                        "actionDataFilter": {
-                                            "results": "${ .greeting }"
-                                        }
-                                    }
+            "functionRef": {
+                "refName": "greetingFunction",
+                "arguments": {
+                    "name": "${ .person.name }"
+                }
+            },
+            "actionDataFilter": {
+                "results": "${ .greeting }"
+            }
+        }
         action = Action(**action_data)
         self.assertTrue(isinstance(action.actionDataFilter, ActionDataFilter))

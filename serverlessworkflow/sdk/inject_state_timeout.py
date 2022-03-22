@@ -1,16 +1,16 @@
 import copy
 
-from serverlessworkflow.sdk.hydration import ComplexTypeOf, HydratableParameter, Fields
 from serverlessworkflow.sdk.state_exec_timeout import StateExecTimeOut
+from serverlessworkflow.sdk.swf_base import ComplexTypeOf, HydratableParameter, SwfBase
 
 
-class InjectStateTimeOut:
+class InjectStateTimeOut(SwfBase):
     stateExecTimeOut: StateExecTimeOut = None
 
     def __init__(self,
                  stateExecTimeOut: StateExecTimeOut = None,
                  **kwargs):
-        Fields(locals(), kwargs, InjectStateTimeOut.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, InjectStateTimeOut.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

@@ -1,10 +1,10 @@
 import copy
 
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, Fields
 from serverlessworkflow.sdk.state_exec_timeout import StateExecTimeOut
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ComplexTypeOf, SwfBase
 
 
-class ParallelStateTimeOut:
+class ParallelStateTimeOut(SwfBase):
     stateExecTimeOut: StateExecTimeOut = None
     branchExecTimeOut: str = None  # BranchExecTimeOut
 
@@ -12,7 +12,7 @@ class ParallelStateTimeOut:
                  stateExecTimeOut: StateExecTimeOut = None,
                  branchExecTimeOut: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, ParallelStateTimeOut.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, ParallelStateTimeOut.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

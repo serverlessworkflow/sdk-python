@@ -4,16 +4,16 @@ import copy
 
 from serverlessworkflow.sdk.end import End
 from serverlessworkflow.sdk.error import Error
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, UnionTypeOf, SimpleTypeOf, \
-    ArrayTypeOf, Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.sleep_state_timeout import SleepStateTimeOut
 from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ComplexTypeOf, UnionTypeOf, SimpleTypeOf, \
+    ArrayTypeOf, SwfBase
 from serverlessworkflow.sdk.transition import Transition
 
 
-class SleepState(State):
+class SleepState(State, SwfBase):
     id: str = None
     name: str = None
     type: str = None
@@ -41,11 +41,13 @@ class SleepState(State):
                  usedForCompensation: bool = None,
                  metadata: Metadata = None,
                  **kwargs):
-        Fields(locals(), kwargs, SleepState.f_hydration).set_to_object(self)
+
+        _default_values = {'type': 'sleep', 'usedForCompensation': False}
+        SwfBase.__init__(self, locals(), kwargs, SleepState.f_hydration,
+                         _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'end':
             return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(bool),
                                                                              ComplexTypeOf(End)]))

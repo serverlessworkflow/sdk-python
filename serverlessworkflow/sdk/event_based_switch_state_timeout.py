@@ -1,10 +1,10 @@
 import copy
 
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, Fields
 from serverlessworkflow.sdk.state_exec_timeout import StateExecTimeOut
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ComplexTypeOf, SwfBase
 
 
-class EventBasedSwitchStateTimeOut:
+class EventBasedSwitchStateTimeOut(SwfBase):
     stateExecTimeOut: StateExecTimeOut = None
     eventTimeOut: str = None  # EventTimeOut
 
@@ -12,7 +12,7 @@ class EventBasedSwitchStateTimeOut:
                  stateExecTimeOut: StateExecTimeOut = None,
                  eventTimeOut: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, EventBasedSwitchStateTimeOut.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, EventBasedSwitchStateTimeOut.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

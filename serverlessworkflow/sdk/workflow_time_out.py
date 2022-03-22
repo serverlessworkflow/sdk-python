@@ -1,11 +1,11 @@
 import copy
 
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, Fields
 from serverlessworkflow.sdk.state_exec_timeout import StateExecTimeOut
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ComplexTypeOf, SwfBase
 from serverlessworkflow.sdk.workflow_exec_timeout import WorkflowExecTimeOut
 
 
-class WorkflowTimeOut:
+class WorkflowTimeOut(SwfBase):
     workflowExecTimeOut: WorkflowExecTimeOut = None
     stateExecTimeOut: StateExecTimeOut = None
     actionExecTimeOut: str = None  # ActionExecTimeOut
@@ -19,11 +19,11 @@ class WorkflowTimeOut:
                  branchExecTimeOut: str = None,  # BranchExecTimeOut
                  eventTimeOut: str = None,  # EventTimeOut
                  **kwargs):
-        Fields(locals(), kwargs, WorkflowTimeOut.f_hydration).set_to_object(self)
+
+        SwfBase.__init__(self, locals(), kwargs, WorkflowTimeOut.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'workflowExecTimeOut':
             return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(WorkflowExecTimeOut))
 

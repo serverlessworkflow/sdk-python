@@ -3,13 +3,12 @@ from __future__ import annotations
 import copy
 
 from serverlessworkflow.sdk.event_data_filter import EventDataFilter
-from serverlessworkflow.sdk.hydration import HydratableParameter, UnionTypeOf, SimpleTypeOf, ComplexTypeOf, \
-    Fields
 from serverlessworkflow.sdk.metadata import Metadata
+from serverlessworkflow.sdk.swf_base import HydratableParameter, UnionTypeOf, SimpleTypeOf, ComplexTypeOf, SwfBase
 from serverlessworkflow.sdk.transition import Transition
 
 
-class TransitionEventCondition:
+class TransitionEventCondition(SwfBase):
     name: str = None
     eventRef: str = None
     transition: (str | Transition) = None
@@ -23,7 +22,8 @@ class TransitionEventCondition:
                  eventDataFilter: EventDataFilter = None,
                  metadata: Metadata = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

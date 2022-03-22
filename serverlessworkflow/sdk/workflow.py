@@ -14,8 +14,6 @@ from serverlessworkflow.sdk.event_def import EventDef
 from serverlessworkflow.sdk.event_state import EventState
 from serverlessworkflow.sdk.foreach_state import ForEachState
 from serverlessworkflow.sdk.function import Function
-from serverlessworkflow.sdk.hydration import HydratableParameter, UnionTypeOf, SimpleTypeOf, ComplexTypeOf, \
-    ArrayTypeOf, Fields
 from serverlessworkflow.sdk.inject_state import InjectState
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.operation_state import OperationState
@@ -24,6 +22,8 @@ from serverlessworkflow.sdk.retry_def import RetryDef
 from serverlessworkflow.sdk.sleep_state import SleepState
 from serverlessworkflow.sdk.start_def import StartDef
 from serverlessworkflow.sdk.state import State
+from serverlessworkflow.sdk.swf_base import HydratableParameter, UnionTypeOf, SimpleTypeOf, ComplexTypeOf, \
+    ArrayTypeOf, SwfBase
 from serverlessworkflow.sdk.workflow_time_out import WorkflowTimeOut
 
 
@@ -32,7 +32,7 @@ class DataInputSchema:
     failOnValidationErrors: bool
 
 
-class Workflow:
+class Workflow(SwfBase):
     id: str = None
     key: str = None
     name: str = None
@@ -57,7 +57,7 @@ class Workflow:
     states: [State] = None
 
     def __init__(self,
-                 id_: str = None,
+                 id: str = None,
                  key: str = None,
                  name: str = None,
                  version: str = None,
@@ -81,18 +81,23 @@ class Workflow:
                  functions: (str | [Function]) = None
                  , **kwargs):
 
-        Fields(locals(), kwargs, Workflow.f_hydration).set_to_object(self)
+        _default_values = {'expressionLang': 'jq', 'keepActive': True}
+        SwfBase.__init__(self, locals(), kwargs, Workflow.f_hydration,
+                         _default_values)
 
     def to_json(self) -> str:
-        return json.dumps(self,
+
+        self_copy = self.serialize()
+        return json.dumps(self_copy,
                           default=lambda o: o.__dict__,
                           indent=4)
 
     def to_yaml(self):
+
+        self_copy = self.serialize()
         yaml.emitter.Emitter.process_tag = lambda x: None
-        return yaml.dump(self,
+        return yaml.dump(self_copy,
                          sort_keys=False,
-                         # , default_flow_style=False,
                          allow_unicode=True,
                          )
 
@@ -142,7 +147,7 @@ class Workflow:
                                                                              ArrayTypeOf(AuthDef)]))
 
         if p_key == 'states':
-            return [Workflow.hydrate_state(v) if not isinstance(v,State) else v for v in p_value]
+            return [Workflow.hydrate_state(v) if not isinstance(v, State) else v for v in p_value]
 
         if p_key == 'functions':
             return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),

@@ -1,6 +1,6 @@
 import unittest
 
-from serverlessworkflow.sdk.hydration import ArrayTypeOf, ComplexTypeOf, UnionTypeOf, SimpleTypeOf
+from serverlessworkflow.sdk.swf_base import ArrayTypeOf, ComplexTypeOf, UnionTypeOf, SimpleTypeOf
 
 
 class AnyClass:

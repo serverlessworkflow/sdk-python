@@ -1,8 +1,8 @@
-from serverlessworkflow.sdk.hydration import Fields
 from serverlessworkflow.sdk.metadata import Metadata
+from serverlessworkflow.sdk.swf_base import SwfBase
 
 
-class BasicPropsDef:
+class BasicPropsDef(SwfBase):
     username: str = None
     password: str = None
     metadata: Metadata = None
@@ -12,4 +12,4 @@ class BasicPropsDef:
                  password: str = None,
                  metadata: Metadata = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration)

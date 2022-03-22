@@ -3,11 +3,10 @@ from __future__ import annotations
 import copy
 
 from serverlessworkflow.sdk.cron_def import CronDef
-from serverlessworkflow.sdk.hydration import HydratableParameter, SimpleTypeOf, ComplexTypeOf, UnionTypeOf, \
-    Fields
+from serverlessworkflow.sdk.swf_base import HydratableParameter, SimpleTypeOf, ComplexTypeOf, UnionTypeOf, SwfBase
 
 
-class Schedule:
+class Schedule(SwfBase):
     interval: str = None
     cron: (str | CronDef) = None
     timezone: str = None
@@ -17,7 +16,7 @@ class Schedule:
                  cron: (str | CronDef) = None,
                  timezone: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, Schedule.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, Schedule.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

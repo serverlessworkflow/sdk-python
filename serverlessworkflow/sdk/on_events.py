@@ -2,10 +2,10 @@ import copy
 
 from serverlessworkflow.sdk.action import Action
 from serverlessworkflow.sdk.event_data_filter import EventDataFilter
-from serverlessworkflow.sdk.hydration import HydratableParameter, ArrayTypeOf, ComplexTypeOf, Fields
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ArrayTypeOf, ComplexTypeOf, SwfBase
 
 
-class OnEvents:
+class OnEvents(SwfBase):
     eventRefs: [str] = None
     actionMode: str = None
     actions: [Action] = None
@@ -17,7 +17,9 @@ class OnEvents:
                  actions: [Action] = None,
                  eventDataFilter: EventDataFilter = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+
+        _default_values = {'actionMode': 'sequential'}
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration, _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):

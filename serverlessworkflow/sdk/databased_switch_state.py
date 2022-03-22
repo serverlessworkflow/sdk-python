@@ -6,21 +6,20 @@ from serverlessworkflow.sdk.databased_switch_state_timeout import DataBasedSwitc
 from serverlessworkflow.sdk.default_condition_def import DefaultConditionDef
 from serverlessworkflow.sdk.end_data_condition import EndDataCondition
 from serverlessworkflow.sdk.error import Error
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, ArrayTypeOf, \
-    Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ComplexTypeOf, ArrayTypeOf, SwfBase
 from serverlessworkflow.sdk.transition_data_condition import TransitionDataCondition
 
 
-class DataBasedSwitchState(State):
+class DataBasedSwitchState(State, SwfBase):
     id: str = None
     name: str = None
     type: str = None
     stateDataFilter: StateDataFilter = None
     timeouts: DataBasedSwitchStateTime0ut = None
-    dataConditions: ( [TransitionDataCondition] | [EndDataCondition]) = None
+    dataConditions: ([TransitionDataCondition] | [EndDataCondition]) = None
     onErrors: [Error] = None
     defaultCondition: DefaultConditionDef = None
     compensatedBy: str = None
@@ -33,18 +32,20 @@ class DataBasedSwitchState(State):
                  type: str = None,
                  stateDataFilter: StateDataFilter = None,
                  timeouts: DataBasedSwitchStateTime0ut = None,
-                 dataConditions: ( [TransitionDataCondition] | [EndDataCondition]) = None,
+                 dataConditions: ([TransitionDataCondition] | [EndDataCondition]) = None,
                  onErrors: [Error] = None,
                  defaultCondition: DefaultConditionDef = None,
                  compensatedBy: str = None,
                  usedForCompensation: bool = None,
                  metadata: Metadata = None,
                  **kwargs):
-        Fields(locals(), kwargs, DataBasedSwitchState.f_hydration).set_to_object(self)
+
+        _default_values = {'type': 'switch', 'usedForCompensation': False}
+        SwfBase.__init__(self, locals(), kwargs, DataBasedSwitchState.f_hydration,
+                         _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'stateDataFilter':
             return HydratableParameter(value=p_value).hydrateAs(ComplexTypeOf(StateDataFilter))
 
@@ -63,10 +64,8 @@ class DataBasedSwitchState(State):
 
         return copy.deepcopy(p_value)
 
-
     @staticmethod
     def hydrate_state(v):
-
         state = State(**v)
         if hasattr(state, "transition"):
             return TransitionDataCondition(**v)

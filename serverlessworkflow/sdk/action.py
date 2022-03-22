@@ -5,13 +5,12 @@ import copy
 from serverlessworkflow.sdk.action_data_filter import ActionDataFilter
 from serverlessworkflow.sdk.event_ref import EventRef
 from serverlessworkflow.sdk.function_ref import FunctionRef
-from serverlessworkflow.sdk.hydration import ComplexTypeOf, UnionTypeOf, SimpleTypeOf, HydratableParameter, \
-    Fields
 from serverlessworkflow.sdk.sleep import Sleep
 from serverlessworkflow.sdk.sub_flow_ref import SubFlowRef
+from serverlessworkflow.sdk.swf_base import ComplexTypeOf, UnionTypeOf, SimpleTypeOf, HydratableParameter, SwfBase
 
 
-class Action:
+class Action(SwfBase):
     id: str = None
     name: str = None
     functionRef: (str | FunctionRef) = None
@@ -39,11 +38,10 @@ class Action:
                  eslavida: str = None,
                  **kwargs):
 
-        Fields(locals(), kwargs, Action.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, Action.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         parameter = HydratableParameter(value=p_value)
         if p_key == 'functionRef':
             return parameter.hydrateAs(UnionTypeOf([SimpleTypeOf(str), ComplexTypeOf(FunctionRef)]))

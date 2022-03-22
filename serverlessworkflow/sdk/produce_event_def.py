@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import copy
 
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, SimpleTypeOf, UnionTypeOf, \
-    Fields
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ComplexTypeOf, SimpleTypeOf, UnionTypeOf, SwfBase
 
 
-class ProduceEventDef:
+class ProduceEventDef(SwfBase):
     eventRef: str = None
     data: (str | dict) = None
     contextAttributes: dict[str, str] = None
@@ -17,11 +16,10 @@ class ProduceEventDef:
                  contextAttributes: dict[str, str] = None,
                  **kwargs):
 
-        Fields(locals(), kwargs, ProduceEventDef.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, ProduceEventDef.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):
-
         if p_key == 'data':
             return HydratableParameter(value=p_value).hydrateAs(UnionTypeOf([SimpleTypeOf(str),
                                                                              ComplexTypeOf(dict)]))

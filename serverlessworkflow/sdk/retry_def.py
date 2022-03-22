@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from serverlessworkflow.sdk.hydration import Fields
+from serverlessworkflow.sdk.swf_base import SwfBase
 
 
-class RetryDef:
+class RetryDef(SwfBase):
     name: str = None
     delay: str = None
     maxDelay: str = None
@@ -21,4 +21,4 @@ class RetryDef:
                  maxAttempts: (int | str) = None,
                  jitter: (int | str) = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration)

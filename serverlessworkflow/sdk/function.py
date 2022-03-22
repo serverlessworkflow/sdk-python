@@ -1,8 +1,8 @@
-from serverlessworkflow.sdk.hydration import Fields
 from serverlessworkflow.sdk.metadata import Metadata
+from serverlessworkflow.sdk.swf_base import SwfBase
 
 
-class Function:
+class Function(SwfBase):
     name: str = None
     operation: str = None
     type: str = None
@@ -16,4 +16,6 @@ class Function:
                  authRef: str = None,
                  metadata: Metadata = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+        _default_values = {'type': 'rest'}
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration,
+                         _default_values)

@@ -1,4 +1,3 @@
-import json
 import os
 import unittest
 from os import listdir
@@ -13,7 +12,7 @@ from serverlessworkflow.sdk.workflow import Workflow
 
 class TestWorkflow(unittest.TestCase):
     workflow = Workflow(
-        id_="greeting",
+        id="greeting",
         name="Greeting Workflow",
         description="Greet Someone",
         version='1.0',
@@ -125,7 +124,7 @@ functions:
         for example in examples:
             with self.subTest(f"test_{example}"):
                 with open(examples_dir + "/" + example, "r") as swf_file:
-                    workflow = Workflow.from_source(swf_file)
+                    workflow = Workflow.from_source(swf_file.read())
                     self.assertTrue(isinstance(workflow, Workflow))
 
     def test_instance_workflow_class(self):
@@ -136,7 +135,7 @@ functions:
         for example in examples:
             with self.subTest(f"test_{example}"):
                 with open(examples_dir + "/" + example, "r") as swf_file:
-                    workflow = Workflow(**json.load(swf_file))
+                    workflow = Workflow.from_source(swf_file.read())
                     self.assertTrue(isinstance(workflow, Workflow))
 
     def test_workflow_from_source_yaml(self):
@@ -145,13 +144,12 @@ functions:
 
     def assert_test_workflow_file(self, wf_file):
         with open(wf_file, "r") as swf_file:
-            swf_content = swf_file.read()
-
-            workflow = Workflow.from_source(swf_content)
+            workflow = Workflow.from_source(swf_file.read())
 
             self.assertEqual("greeting", workflow.id)
             self.assertEqual("operation", workflow.states[0].type)
             self.assertEqual(True, workflow.states[0].end)
+            self.assertEqual('jq', workflow.expressionLang)
             self.assertTrue(isinstance(workflow.states[0].actions[0], Action))
             self.assertTrue(isinstance(workflow.states[0].actions[0].functionRef, FunctionRef))
             self.assertTrue(isinstance(workflow.functions[0], Function))

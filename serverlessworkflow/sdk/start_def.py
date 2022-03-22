@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import copy
 
-from serverlessworkflow.sdk.hydration import SimpleTypeOf, ComplexTypeOf, UnionTypeOf, HydratableParameter, \
-    Fields
 from serverlessworkflow.sdk.schedule import Schedule
+from serverlessworkflow.sdk.swf_base import SimpleTypeOf, ComplexTypeOf, UnionTypeOf, HydratableParameter, SwfBase
 
 
-class StartDef:
+class StartDef(SwfBase):
     stateName: str = None
     schedule: (str | Schedule) = None
 
@@ -15,7 +14,7 @@ class StartDef:
                  stateName: str = None,
                  schedule: (str | Schedule) = None,
                  **kwargs):
-        Fields(locals(), kwargs, StartDef.f_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, StartDef.f_hydration)
 
     @staticmethod
     def f_hydration(p_key, p_value):

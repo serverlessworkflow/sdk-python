@@ -1,7 +1,7 @@
-from serverlessworkflow.sdk.hydration import Fields
+from serverlessworkflow.sdk.swf_base import SwfBase
 
 
-class SubFlowRef:
+class SubFlowRef(SwfBase):
     workflowId: str = None
     version: str = None
     onParentComplete: str = None
@@ -13,4 +13,4 @@ class SubFlowRef:
                  onParentComplete: str = None,
                  invoke: str = None,
                  **kwargs):
-        Fields(locals(), kwargs, Fields.default_hydration).set_to_object(self)
+        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration)

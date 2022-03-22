@@ -5,16 +5,16 @@ import copy
 from serverlessworkflow.sdk.action import Action
 from serverlessworkflow.sdk.end import End
 from serverlessworkflow.sdk.error import Error
-from serverlessworkflow.sdk.hydration import HydratableParameter, ComplexTypeOf, ArrayTypeOf, UnionTypeOf, \
-    SimpleTypeOf, Fields
 from serverlessworkflow.sdk.metadata import Metadata
 from serverlessworkflow.sdk.operation_state_timeout import OperationStateTimeOut
 from serverlessworkflow.sdk.state import State
 from serverlessworkflow.sdk.state_data_filter import StateDataFilter
+from serverlessworkflow.sdk.swf_base import HydratableParameter, ComplexTypeOf, ArrayTypeOf, UnionTypeOf, \
+    SimpleTypeOf, SwfBase
 from serverlessworkflow.sdk.transition import Transition
 
 
-class OperationState(State):
+class OperationState(State, SwfBase):
     id: str = None
     name: str = None
     type: str = None
@@ -44,7 +44,10 @@ class OperationState(State):
                  metadata: Metadata = None,
                  end: (bool | End) = None,
                  **kwargs):
-        Fields(locals(), kwargs, OperationState.f_hydration).set_to_object(self)
+
+        _default_values = {'type': 'operation', 'actionMode': 'sequential', 'usedForCompensation': False}
+        SwfBase.__init__(self, locals(), kwargs, OperationState.f_hydration,
+                         _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
