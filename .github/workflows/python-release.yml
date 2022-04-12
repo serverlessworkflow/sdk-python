@@ -1,0 +1,41 @@
+name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+
+
+on:
+  release:
+    types: [created]
+
+
+jobs:
+  build-n-publish:
+    name: Build and publish Python 🐍 distributions 📦 to PyPI
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          pip install pipenv
+          pip install build
+          pipenv install --dev
+
+      - name: Test
+        run: |
+          pipenv run pytest
+
+      - name: Build
+        run: >-
+          python -m
+          build
+          --sdist
+          --wheel
+          --outdir dist/
+
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

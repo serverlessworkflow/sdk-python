@@ -6,7 +6,7 @@ with open("README.md", "r") as readme_file:
 setup(
     name='serverlessworkflow.sdk',
     packages=find_packages(include=['serverlessworkflow', 'serverlessworkflow.sdk']),
-    version='0.1.0',
+    version='1.0.0',
     description='Serverless Workflow Specification - Python SDK',
     long_description=readme,
     long_description_content_type="text/markdown",
