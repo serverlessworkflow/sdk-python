@@ -13,7 +13,7 @@ setup(
     url="https://serverlessworkflow.io/",
     author='Serverless Workflow Contributors',
     license='http://www.apache.org/licenses/LICENSE-2.0.txt',
-    install_requires=['pyyaml==6.0', "jsonschema==4.4.0", "requests"],
+    install_requires=['pyyaml==6.0', "jsonschema==4.4.0", "requests", "pygraphviz==1.11", "transitions==0.9.2"],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     test_suite='tests',
