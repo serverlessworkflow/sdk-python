@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Optional, Union
+from serverlessworkflow.sdk.action import Action
 from serverlessworkflow.sdk.callback_state import CallbackState
 from serverlessworkflow.sdk.function_ref import FunctionRef
 from serverlessworkflow.sdk.sleep_state import SleepState
@@ -10,6 +11,7 @@ from serverlessworkflow.sdk.workflow import (
     ParallelState,
     OperationState,
     ForEachState,
+    Workflow,
 )
 from serverlessworkflow.sdk.transition_data_condition import TransitionDataCondition
 from serverlessworkflow.sdk.end_data_condition import EndDataCondition
@@ -25,6 +27,7 @@ class StateMachineGenerator:
         self,
         state: State,
         state_machine: Union[HierarchicalMachine, GraphMachine],
+        subflows: List[Workflow] = [],
         is_first_state=False,
         get_actions=False,
     ):
@@ -32,6 +35,7 @@ class StateMachineGenerator:
         self.is_first_state = is_first_state
         self.state_machine = state_machine
         self.get_actions = get_actions
+        self.subflows = subflows
 
         if self.get_actions and not isinstance(self.state_machine, HierarchicalMachine):
             raise AttributeError(
@@ -314,6 +318,11 @@ class StateMachineGenerator:
 
     def operation_state_details(self) -> Optional[str]:
         descriptions = []
+        if self.state.name not in self.state_machine.states.keys():
+            self.state_machine.add_states(self.state.name)
+            if self.is_first_state:
+                self.state_machine._initial = self.state.name
+
         if isinstance(self.state, OperationState):
             action_mode = self.state.actionMode
             if action_mode:
@@ -324,26 +333,11 @@ class StateMachineGenerator:
                         action_mode,
                     )
                 )
-            actions = self.state.actions
-            if actions:
-                descriptions.append(
-                    self.state_description(
-                        self.state_key_diagram(self.state.name),
-                        "Num. of actions",
-                        str(len(actions)),
-                    )
+            descriptions.extend(
+                self.generate_actions_info(
+                    actions=self.state.actions, action_mode=self.state.actionMode
                 )
-                if self.get_actions:
-                    descriptions.append(
-                        f"state {self.state_key_diagram(self.state.name)} {{\n"
-                        f"{self.generate_composite_state(self.state_machine.get_state(self.state.name), self.state.name, actions, action_mode)}\n"
-                        f"}}\n"
-                    )
-
-        if self.state.name not in self.state_machine.states.keys():
-            self.state_machine.add_states(self.state.name)
-            if self.is_first_state:
-                self.state_machine._initial = self.state.name
+            )
 
         return "\n".join(descriptions) if descriptions else None
 
@@ -368,15 +362,12 @@ class StateMachineGenerator:
                         input_collection,
                     )
                 )
-            actions = self.state.actions
-            if actions:
-                descriptions.append(
-                    self.state_description(
-                        self.state_key_diagram(self.state.name),
-                        "Num. of actions",
-                        str(len(actions)),
-                    )
+            descriptions.extend(
+                self.generate_actions_info(
+                    actions=self.state.actions, action_mode=self.state.mode
                 )
+            )
+
         return "\n".join(descriptions) if descriptions else None
 
     def callback_state_details(self) -> Optional[str]:
@@ -398,12 +389,7 @@ class StateMachineGenerator:
                     )
                 )
 
-                if self.get_actions:
-                    descriptions.append(
-                        f"state {self.state_key_diagram(self.state.name)} {{\n"
-                        f"{self.generate_composite_state(self.state_machine.get_state(self.state.name), self.state.name, [action], 'sequential')}\n"
-                        f"}}\n"
-                    )
+                self.generate_actions_info(actions=[action], singular_action=True)
             event_ref = self.state.eventRef
             if event_ref:
                 descriptions.append(
@@ -438,7 +424,7 @@ class StateMachineGenerator:
         machine_state: NestedState,
         state_name: str,
         actions: List[Dict[str, Any]],
-        action_mode: str,
+        action_mode: str = "sequential",
     ) -> str:
         transitions = ""
         parallel_states = []
@@ -501,6 +487,91 @@ class StateMachineGenerator:
                     machine_state.initial = parallel_states
 
         return transitions
+
+    def generate_actions_info(
+        self,
+        actions: List[Action],
+        action_mode: str = "sequential",
+        singular_action=False,
+    ):
+        descriptions = []
+        if actions:
+            if not singular_action:
+                descriptions.append(
+                    self.state_description(
+                        self.state_key_diagram(self.state.name),
+                        "Num. of actions",
+                        str(len(actions)),
+                    )
+                )
+            if self.get_actions:
+                descriptions.append(
+                    f"state {self.state_key_diagram(self.state.name)} {{\n"
+                    f"{self.generate_composite_state(self.state_machine.get_state(self.state.name), self.state.name, actions, action_mode)}\n"
+                    f"}}\n"
+                )
+                for action in actions:
+                    if action.subFlowRef:
+                        if isinstance(action.subFlowRef, str):
+                            workflow_id = action.subFlowRef
+                            workflow_version = None
+                        else:
+                            workflow_id = action.subFlowRef.workflowId
+                            workflow_version = action.subFlowRef.version
+                        for sf in self.subflows:
+                            if (
+                                sf.id == workflow_id
+                            ):  # and (workflow_version and sf.version == workflow_version or not workflow_version):
+                                new_machine = HierarchicalMachine(
+                                    model=None, initial=None, auto_transitions=False
+                                )
+
+                                # Generate the state machine for the subflow
+                                for index, state in enumerate(sf.states):
+                                    StateMachineGenerator(
+                                        state=state,
+                                        state_machine=new_machine,
+                                        is_first_state=index == 0,
+                                        get_actions=self.get_actions,
+                                        subflows=self.subflows
+                                    ).source_code()
+
+                                # Convert the new_machine into a NestedState
+                                nested_state = NestedState(
+                                    action.name if action.name else f"{sf.id}/{sf.version.replace(NestedState.separator, '-')}"
+                                )
+                                self.state_machine_to_nested_state(state_machine=new_machine, nested_state=nested_state)
+                    # else:
+                    #     raise Warning("No correct subflow provided")
+
+        return descriptions
+    
+    def add_all_sub_states(cls, original_state: Union[NestedState, HierarchicalMachine], new_state: NestedState):
+        if len(original_state.states) == 0:
+            return
+        for substate in original_state.states.values():
+            new_state.add_substate(ns := NestedState(substate.name))
+            cls.add_all_sub_states(substate, ns)
+
+    def state_machine_to_nested_state(
+        self, state_machine: HierarchicalMachine, nested_state: NestedState
+    ) -> NestedState:
+        self.state_machine.get_state(
+            self.state.name
+        ).add_substate(nested_state)
+        
+        self.add_all_sub_states(state_machine, nested_state)
+
+        for trigger, event in state_machine.events.items():
+            for transition_l in event.transitions.values():
+                for transition in transition_l:
+                    source = transition.source
+                    dest = transition.dest
+                    self.state_machine.add_transition(
+                        trigger=trigger,
+                        source=f"{self.state.name}.{nested_state.name}.{source}",
+                        dest=f"{self.state.name}.{nested_state.name}.{dest}",
+                    )
 
     def get_function_name(
         self, fn_ref: Union[Dict[str, Any], str, None]

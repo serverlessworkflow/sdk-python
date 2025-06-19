@@ -32,7 +32,7 @@ class StateMachineHelper:
         )
         self.plantuml_graph = "\n\n".join(
             StateMachineGenerator(
-                state, self.machine, index == 0, get_actions=self.get_actions
+                state=state, state_machine=self.machine, is_first_state=index == 0, get_actions=self.get_actions, subflows=subflows
             ).source_code()
             for index, state in enumerate(workflow.states)
         )
