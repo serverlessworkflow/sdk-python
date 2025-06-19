@@ -18,6 +18,7 @@ from serverlessworkflow.sdk.end_data_condition import EndDataCondition
 
 from transitions.extensions import HierarchicalMachine, GraphMachine
 from transitions.extensions.nesting import NestedState
+import warnings
 
 NestedState.separator = "."
 
@@ -46,58 +47,32 @@ class StateMachineGenerator:
                 "The provided state machine can not be of the HierarchicalMachine type."
             )
 
-    def source_code(self) -> str:
-        state_definition = self.definitions()
-        state_transitions = self.transitions()
+    def source_code(self):
+        self.definitions()
+        self.transitions()
 
-        state_description = state_definition
-        for tr in state_transitions:
-            state_description += "\n" + tr
-
-        return state_description
-
-    def definitions(self) -> str:
-        details = self.definition_details()
-        return (
-            self.definition_name()
-            + "\n"
-            + self.definition_type()
-            + ("\n" + details if details is not None else "")
-        )
-
-    def transitions(self) -> List[str]:
-        transitions = []
-        transitions += self.start_transition()
-        transitions += self.data_conditions_transitions()
-        transitions += self.event_conditions_transition()
-        transitions += self.error_transitions()
-        transitions += self.natural_transition(
-            self.state_key_diagram(self.state.name),
+    def transitions(self):
+        self.start_transition()
+        self.data_conditions_transitions()
+        self.event_conditions_transition()
+        self.error_transitions()
+        self.natural_transition(
+            self.state.name,
             self.state.transition if hasattr(self.state, "transition") else None,
         )
-        transitions += self.compensated_by_transition()
-        transitions += self.end_transition()
-        return transitions
+        self.compensated_by_transition()
+        self.end_transition()
 
-    def state_key_diagram(self, name: str) -> Optional[str]:
-        return name.replace(" ", "_") if name else None
-
-    def start_transition(self) -> List[str]:
-        transitions = []
+    def start_transition(self):
         if self.is_first_state:
-            state_name = self.state_key_diagram(self.state.name)
-            transitions.append(self.transition_description("[*]", state_name))
-
+            state_name = self.state.name
             if state_name not in self.state_machine.states.keys():
                 self.state_machine.add_states(state_name)
                 self.state_machine._initial = state_name
             else:
                 self.state_machine._initial = state_name
 
-        return transitions
-
-    def data_conditions_transitions(self) -> List[str]:
-        transitions = []
+    def data_conditions_transitions(self):
         if isinstance(self.state, DataBasedSwitchState):
             data_conditions = self.state.dataConditions
             if data_conditions:
@@ -106,22 +81,16 @@ class StateMachineGenerator:
                     if isinstance(data_condition, TransitionDataCondition):
                         transition = data_condition.transition
                         condition = data_condition.condition
-                        transitions += self.natural_transition(
-                            state_name, transition, condition
-                        )
+                        self.natural_transition(state_name, transition, condition)
                     if (
                         isinstance(data_condition, EndDataCondition)
                         and data_condition.end
                     ):
-                        transitions.append(
-                            self.transition_description(state_name, "[*]", condition)
-                        )
+                        condition = data_condition.condition
                         self.end_state(state_name, condition=condition)
-                transitions += self.default_condition_transition(self.state)
-        return transitions
+                self.default_condition_transition(self.state)
 
-    def event_conditions_transition(self) -> List[str]:
-        transitions = []
+    def event_conditions_transition(self):
         if isinstance(self.state, EventBasedSwitchState):
             event_conditions = self.state.eventConditions
             if event_conditions:
@@ -129,57 +98,34 @@ class StateMachineGenerator:
                 for event_condition in event_conditions:
                     transition = event_condition.transition
                     event_ref = event_condition.eventRef
-                    transitions += self.natural_transition(
-                        state_name, transition, event_ref
-                    )
+                    self.natural_transition(state_name, transition, event_ref)
                     if event_condition.end:
-                        transitions.append(
-                            self.transition_description(state_name, "[*]", event_ref)
-                        )
                         self.end_state(state_name, condition=event_ref)
-                transitions += self.default_condition_transition(self.state)
-        return transitions
+                self.default_condition_transition(self.state)
 
-    def default_condition_transition(self, state: Dict[str, Any]) -> List[str]:
-        transitions = []
+    def default_condition_transition(self, state: State):
         if hasattr(state, "defaultCondition"):
             default_condition = state.defaultCondition
             if default_condition:
-                transitions += self.natural_transition(
+                self.natural_transition(
                     self.state.name, default_condition.transition, "default"
                 )
-        return transitions
 
-    def end_transition(self) -> List[str]:
-        transitions = []
+    def end_transition(self):
         if hasattr(self.state, "end") and self.state.end:
-            state_name = self.state.name
-            transition_label = None
-            end = self.state.end
-            if hasattr(end, "produceEvents") and end.produceEvents:
-                events = ",".join(pe.eventRef for pe in end.produceEvents)
-                transition_label = f"Produced event = [{events}]"
-            transitions.append(
-                self.transition_description(state_name, "[*]", transition_label)
-            )
-            self.end_state(state_name)
-        return transitions
+            self.end_state(self.state.name)
 
     def natural_transition(
         self,
         source: str,
         target: Union[str, Transition],
         label: Optional[str] = None,
-    ) -> List[str]:
-        transitions = []
+    ):
         if target:
             if isinstance(target, Transition):
                 desc_transition = target.nextState
             else:
                 desc_transition = target
-            transitions.append(
-                self.transition_description(source, desc_transition, label)
-            )
             if source not in self.state_machine.states.keys():
                 self.state_machine.add_states(source)
             if desc_transition not in self.state_machine.states.keys():
@@ -188,236 +134,113 @@ class StateMachineGenerator:
                 trigger=label if label else "", source=source, dest=desc_transition
             )
 
-        return transitions
-
-    def error_transitions(self) -> List[str]:
-        transitions = []
+    def error_transitions(self):
         if hasattr(self.state, "onErrors") and (on_errors := self.state.onErrors):
             for error in on_errors:
-                transitions += self.natural_transition(
-                    self.state_key_diagram(self.state.name),
+                self.natural_transition(
+                    self.state.name,
                     error.transition,
                     error.errorRef,
                 )
-        return transitions
 
-    def compensated_by_transition(self) -> List[str]:
-        transitions = []
+    def compensated_by_transition(self):
         compensated_by = self.state.compensatedBy
         if compensated_by:
-            transitions += self.natural_transition(
-                self.state.name, compensated_by, "compensated by"
-            )
-        return transitions
+            self.natural_transition(self.state.name, compensated_by, "compensated by")
 
-    def definition_details(self) -> Optional[str]:
-        definition = None
+    def definitions(self):
         state_type = self.state.type
         if state_type == "sleep":
-            definition = self.sleep_state_details()
+            self.sleep_state_details()
         elif state_type == "event":
             pass
         elif state_type == "operation":
-            definition = self.operation_state_details()
+            self.operation_state_details()
         elif state_type == "parallel":
-            definition = self.parallel_state_details()
+            self.parallel_state_details()
         elif state_type == "switch":
             if self.state.dataConditions:
-                definition = self.data_based_switch_state_details()
+                self.data_based_switch_state_details()
             elif self.state.eventConditions:
-                definition = self.event_based_switch_state_details()
+                self.event_based_switch_state_details()
             else:
                 raise Exception(f"Unexpected switch type;\n state value= {self.state}")
         elif state_type == "inject":
             pass
         elif state_type == "foreach":
-            definition = self.foreach_state_details()
+            self.foreach_state_details()
         elif state_type == "callback":
-            definition = self.callback_state_details()
+            self.callback_state_details()
         else:
             raise Exception(
                 f"Unexpected type= {state_type};\n state value= {self.state}"
             )
 
-        if (
-            hasattr(self.state, "usedForCompensation")
-            and self.state.usedForCompensation
-        ):
-            definition = self.state_description(
-                self.state_key_diagram(self.state.name), "usedForCompensation\n"
-            ) + (definition or "")
-        return definition
-
-    def definition_type(self) -> str:
-        state_type = self.state.type
-        state_type_cap = state_type.capitalize() if state_type else ""
-        return self.state_description(
-            self.state_key_diagram(self.state.name), "type", f"{state_type_cap} State"
-        )
-
-    def parallel_state_details(self) -> Optional[str]:
-        descriptions = []
+    def parallel_state_details(self):
         if isinstance(self.state, ParallelState):
-            state_name = self.state_key_diagram(self.state.name)
-
-            # Completion type
-            completion_type = self.state.completionType
-            if completion_type:
-                descriptions.append(
-                    self.state_description(
-                        state_name,
-                        "Completion type",
-                        completion_type,
-                    )
-                )
-
-            # Branches
+            state_name = self.state.name
             branches = self.state.branches
             if branches:
-                descriptions.append(
-                    self.state_description(
-                        state_name,
-                        "Num. of branches",
-                        str(len(branches)),
-                    )
-                )
-
                 if self.get_actions:
-                    branch_states = ""
                     for branch in branches:
                         if hasattr(branch, "actions") and branch.actions:
-                            branch_name = self.state_key_diagram(branch.name)
+                            branch_name = branch.name
                             self.state_machine.get_state(state_name).add_substates(
                                 NestedState(branch_name)
                             )
                             branch_state = self.state_machine.get_state(
                                 state_name
                             ).states[branch.name]
-                            sub_state_name = f"{self.state_key_diagram(self.state.name)}.{self.state_key_diagram(branch.name)}"
-                            branch_states += f"state {sub_state_name} {{\n"
-                            branch_states += f"{self.generate_composite_state(branch_state, f'{state_name}.{branch_name}', branch.actions, 'sequential')}\n"
-                            branch_states += f"}}\n"
-                            branch_states += f"[*] --> {sub_state_name}\n"
-                            branch_states += f"{sub_state_name} --> [*]\n"
+                            self.generate_actions_info(
+                                machine_state=branch_state,
+                                state_name=f"{state_name}.{branch_name}",
+                                actions=branch.actions,
+                            )
+                            self.generate_composite_state(
+                                branch_state,
+                                f"{state_name}.{branch_name}",
+                                branch.actions,
+                                "sequential",
+                            )
 
-                    descriptions.append(
-                        f"state {self.state_key_diagram(self.state.name)} {{\n{branch_states}\n}}\n"
-                    )
+    def event_based_switch_state_details(self): ...
 
-        return "\n".join(descriptions) if descriptions else None
+    def data_based_switch_state_details(self): ...
 
-    def event_based_switch_state_details(self) -> str:
-        return self.state_description(
-            self.state_key_diagram(self.state.name), "Condition type", "event-based"
-        )
-
-    def data_based_switch_state_details(self) -> str:
-        return self.state_description(
-            self.state_key_diagram(self.state.name), "Condition type", "data-based"
-        )
-
-    def operation_state_details(self) -> Optional[str]:
-        descriptions = []
+    def operation_state_details(self):
         if self.state.name not in self.state_machine.states.keys():
             self.state_machine.add_states(self.state.name)
             if self.is_first_state:
                 self.state_machine._initial = self.state.name
 
         if isinstance(self.state, OperationState):
-            action_mode = self.state.actionMode
-            if action_mode:
-                descriptions.append(
-                    self.state_description(
-                        self.state_key_diagram(self.state.name),
-                        "Action mode",
-                        action_mode,
-                    )
-                )
-            descriptions.extend(
-                self.generate_actions_info(
-                    actions=self.state.actions, action_mode=self.state.actionMode
-                )
+            self.generate_actions_info(
+                machine_state=self.state_machine.get_state(self.state.name),
+                state_name=self.state.name,
+                actions=self.state.actions,
+                action_mode=self.state.actionMode,
             )
 
-        return "\n".join(descriptions) if descriptions else None
+    def sleep_state_details(self): ...
 
-    def sleep_state_details(self) -> Optional[str]:
-        if isinstance(self.state, SleepState):
-            duration = self.state.duration
-            if duration:
-                return self.state_description(
-                    self.state_key_diagram(self.state.name), "Duration", duration
-                )
-        return None
-
-    def foreach_state_details(self) -> Optional[str]:
-        descriptions = []
+    def foreach_state_details(self):
         if isinstance(self.state, ForEachState):
-            input_collection = self.state.inputCollection
-            if input_collection:
-                descriptions.append(
-                    self.state_description(
-                        self.state_key_diagram(self.state.name),
-                        "Input collection",
-                        input_collection,
-                    )
-                )
-            descriptions.extend(
-                self.generate_actions_info(
-                    actions=self.state.actions, action_mode=self.state.mode
-                )
+            self.generate_actions_info(
+                machine_state=self.state_machine.get_state(self.state.name),
+                state_name=self.state.name,
+                actions=self.state.actions,
+                action_mode=self.state.mode,
             )
 
-        return "\n".join(descriptions) if descriptions else None
-
-    def callback_state_details(self) -> Optional[str]:
-        descriptions = []
+    def callback_state_details(self):
         if isinstance(self.state, CallbackState):
             action = self.state.action
             if action and action.functionRef:
-                function_ref = action.functionRef
-                function_ref_description = (
-                    function_ref.refName
-                    if isinstance(function_ref, FunctionRef)
-                    else function_ref
+                self.generate_actions_info(
+                    machine_state=self.state_machine.get_state(self.state.name),
+                    state_name=self.state.name,
+                    actions=[action],
                 )
-                descriptions.append(
-                    self.state_description(
-                        self.state_key_diagram(self.state.name),
-                        "Callback function",
-                        function_ref_description,
-                    )
-                )
-
-                self.generate_actions_info(actions=[action], singular_action=True)
-            event_ref = self.state.eventRef
-            if event_ref:
-                descriptions.append(
-                    self.state_description(
-                        self.state_key_diagram(self.state.name),
-                        "Callback event",
-                        event_ref,
-                    )
-                )
-        return "\n".join(descriptions) if descriptions else None
-
-    def definition_name(self) -> str:
-        return f"{self.state_key_diagram(self.state.name)} : {self.state.name}"
-
-    def transition_description(
-        self, source: str, target: str, label: Optional[str] = None
-    ) -> str:
-        desc = f"{self.state_key_diagram(source)} --> {self.state_key_diagram(target)}"
-        if label:
-            desc += f" : {label}"
-        return desc
-
-    def state_description(
-        self, state_name: str, description: str, value: Optional[str] = None
-    ) -> str:
-        return f"{state_name} : {description}" + (
-            f" = {value}" if value is not None else ""
-        )
 
     def generate_composite_state(
         self,
@@ -425,8 +248,7 @@ class StateMachineGenerator:
         state_name: str,
         actions: List[Dict[str, Any]],
         action_mode: str = "sequential",
-    ) -> str:
-        transitions = ""
+    ):
         parallel_states = []
 
         if actions:
@@ -444,8 +266,6 @@ class StateMachineGenerator:
                     if fn_name not in machine_state.states.keys():
                         machine_state.add_substate(NestedState(fn_name))
                     if action_mode == "sequential":
-                        current_action = f"{state_name}.{fn_name}"
-
                         if i < len(actions) - 1:
                             next_fn_name = (
                                 self.get_function_name(actions[i + 1].functionRef)
@@ -458,7 +278,6 @@ class StateMachineGenerator:
                                     else None
                                 )
                             )
-                            next_action = f"{state_name}.{next_fn_name}"
                             if (
                                 next_fn_name
                                 not in self.state_machine.get_state(
@@ -471,44 +290,27 @@ class StateMachineGenerator:
                                 source=f"{state_name}.{fn_name}",
                                 dest=f"{state_name}.{next_fn_name}",
                             )
-                        else:
-                            next_action = "[*]"
-
                         if i == 0:
-                            transitions += f"[*] --> {current_action}\n"
                             machine_state.initial = fn_name
-
-                        transitions += f"{current_action} --> {next_action}\n"
                     elif action_mode == "parallel":
-                        transitions += f"[*] --> {fn_name}\n"
-                        transitions += f"{fn_name} --> [*]\n"
                         parallel_states.append(fn_name)
                 if action_mode == "parallel":
                     machine_state.initial = parallel_states
 
-        return transitions
-
     def generate_actions_info(
         self,
+        machine_state: NestedState,
+        state_name: str,
         actions: List[Action],
         action_mode: str = "sequential",
-        singular_action=False,
     ):
-        descriptions = []
         if actions:
-            if not singular_action:
-                descriptions.append(
-                    self.state_description(
-                        self.state_key_diagram(self.state.name),
-                        "Num. of actions",
-                        str(len(actions)),
-                    )
-                )
             if self.get_actions:
-                descriptions.append(
-                    f"state {self.state_key_diagram(self.state.name)} {{\n"
-                    f"{self.generate_composite_state(self.state_machine.get_state(self.state.name), self.state.name, actions, action_mode)}\n"
-                    f"}}\n"
+                self.generate_composite_state(
+                    machine_state,
+                    state_name,
+                    actions,
+                    action_mode,
                 )
                 for action in actions:
                     if action.subFlowRef:
@@ -518,10 +320,13 @@ class StateMachineGenerator:
                         else:
                             workflow_id = action.subFlowRef.workflowId
                             workflow_version = action.subFlowRef.version
+                        none_found = True
                         for sf in self.subflows:
-                            if (
-                                sf.id == workflow_id
-                            ):  # and (workflow_version and sf.version == workflow_version or not workflow_version):
+                            if sf.id == workflow_id and (
+                                (workflow_version and sf.version == workflow_version)
+                                or not workflow_version
+                            ):
+                                none_found = False
                                 new_machine = HierarchicalMachine(
                                     model=None, initial=None, auto_transitions=False
                                 )
@@ -533,20 +338,29 @@ class StateMachineGenerator:
                                         state_machine=new_machine,
                                         is_first_state=index == 0,
                                         get_actions=self.get_actions,
-                                        subflows=self.subflows
+                                        subflows=self.subflows,
                                     ).source_code()
 
                                 # Convert the new_machine into a NestedState
                                 nested_state = NestedState(
-                                    action.name if action.name else f"{sf.id}/{sf.version.replace(NestedState.separator, '-')}"
+                                    action.name
+                                    if action.name
+                                    else f"{sf.id}/{sf.version.replace(NestedState.separator, '-')}"
                                 )
-                                self.state_machine_to_nested_state(state_machine=new_machine, nested_state=nested_state)
-                    # else:
-                    #     raise Warning("No correct subflow provided")
+                                self.state_machine_to_nested_state(
+                                    state_machine=new_machine, nested_state=nested_state
+                                )
+                        if none_found:
+                            warnings.warn(
+                                f"Specified subflow [{workflow_id} {workflow_version if workflow_version else ''}] not found.",
+                                category=UserWarning,
+                            )
 
-        return descriptions
-    
-    def add_all_sub_states(cls, original_state: Union[NestedState, HierarchicalMachine], new_state: NestedState):
+    def add_all_sub_states(
+        cls,
+        original_state: Union[NestedState, HierarchicalMachine],
+        new_state: NestedState,
+    ):
         if len(original_state.states) == 0:
             return
         for substate in original_state.states.values():
@@ -556,10 +370,8 @@ class StateMachineGenerator:
     def state_machine_to_nested_state(
         self, state_machine: HierarchicalMachine, nested_state: NestedState
     ) -> NestedState:
-        self.state_machine.get_state(
-            self.state.name
-        ).add_substate(nested_state)
-        
+        self.state_machine.get_state(self.state.name).add_substate(nested_state)
+
         self.add_all_sub_states(state_machine, nested_state)
 
         for trigger, event in state_machine.events.items():
@@ -577,9 +389,9 @@ class StateMachineGenerator:
         self, fn_ref: Union[Dict[str, Any], str, None]
     ) -> Optional[str]:
         if isinstance(fn_ref, dict) and "refName" in fn_ref:
-            return self.state_key_diagram(fn_ref["refName"])
+            return fn_ref["refName"]
         elif isinstance(fn_ref, str):
-            return self.state_key_diagram(fn_ref)
+            return fn_ref
         return None
 
     def end_state(self, name, condition=None):
