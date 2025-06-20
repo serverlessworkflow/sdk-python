@@ -1,0 +1,57 @@
+{
+  "id": "advertise-listing",
+  "version": "0.1.0",
+  "specVersion": "0.8",
+  "start": "f8-advertise-listing",
+  "states": [
+    {
+      "name": "f8-advertise-listing",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": "f8"
+        }
+      ],
+      "transition": "advertise-parallel"
+    },
+    {
+      "name": "advertise-parallel",
+      "type": "parallel",
+      "branches": [
+        {
+          "name": "send-sms",
+          "actions": [
+            {
+              "functionRef": "f9"
+            }
+          ]
+        },
+        {
+          "name": "tweet",
+          "actions": [
+            {
+              "functionRef": "f10"
+            }
+          ]
+        },
+        {
+          "name": "messenger-chatbot",
+          "actions": [
+            {
+              "functionRef": "f11"
+            }
+          ]
+        },
+        {
+          "name": "test",
+          "actions": [
+            {
+              "subFlowRef": "second-subgraph"
+            }
+          ]
+        }
+      ],
+      "end": true
+    }
+  ]
+}

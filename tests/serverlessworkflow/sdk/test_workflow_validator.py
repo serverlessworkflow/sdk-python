@@ -13,7 +13,7 @@ class TestWorkflowValidator(unittest.TestCase):
     def test_validate_examples(self):
         examples_dir = os.path.join(os.path.dirname(__file__), '../../examples')
         examples = listdir(examples_dir)
-        self.assertEqual(len(examples), 10)
+        self.assertEqual(len(examples), 13)
 
         for example in examples:
             with self.subTest(f"test_{example}"):

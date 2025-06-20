@@ -135,3 +135,32 @@ WorkflowValidator(Workflow(workflow)).validate()
 The `validate` method will raise an exception if the provided workflow does not complaint specification.
 
 You can see a full example in the [test_workflow_validator](tests/serverlessworkflow/sdk/test_workflow_validator.py) file
+
+## Generate workflow state machine and graph
+
+To generate the workflow graph diagram:
+
+```python
+from serverlessworkflow.sdk.workflow import Workflow
+from serverlessworkflow.sdk.state_machine_helper import StateMachineHelper
+
+def main():
+    subflows = []
+    with open("tests/examples/graph.json") as f:
+        workflow = Workflow.from_source(f.read())
+    with open("tests/examples/advertise-listing.json") as f:
+        subflows.append(Workflow.from_source(f.read()))
+    with open("tests/examples/second-subgraph.json") as f:
+        subflows.append(Workflow.from_source(f.read()))
+    machine_helper = StateMachineHelper(workflow=workflow, get_actions=True, subflows=subflows)
+    machine_helper.draw('diagram.svg')
+
+
+if __name__ == "__main__":
+    main()
+```
+
+The `StateMachineHelper` can be set with `get_actions` as `False` and the produced diagram will not represent the actions inside each state (it will only create a diagram with the states and their transitions). Moreover, the developer may not give any `subflows`, and they simply will not be generated.
+As for the `draw` method, the developer can also specify `graph_engine='mermaid'`. In that case, the method will not generate a figure, but rather the Mermaid code that can be executed, for instance, in the [Mermaid Live Editor](https://mermaid.live).
+
+It is also possible to only generate the workflow state machine. An example on how to do so can be analyzed in the [state_machine_helper](serverlessworkflow/sdk/state_machine_helper.py) source code.
