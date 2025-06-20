@@ -146,11 +146,11 @@ from serverlessworkflow.sdk.state_machine_helper import StateMachineHelper
 
 def main():
     subflows = []
-    with open("../tests/examples/graph.json") as f:
+    with open("tests/examples/graph.json") as f:
         workflow = Workflow.from_source(f.read())
-    with open("../tests/examples/advertise-listing.json") as f:
+    with open("tests/examples/advertise-listing.json") as f:
         subflows.append(Workflow.from_source(f.read()))
-    with open("../tests/examples/second-subgraph.json") as f:
+    with open("tests/examples/second-subgraph.json") as f:
         subflows.append(Workflow.from_source(f.read()))
     machine_helper = StateMachineHelper(workflow=workflow, get_actions=True, subflows=subflows)
     machine_helper.draw('diagram.svg')
