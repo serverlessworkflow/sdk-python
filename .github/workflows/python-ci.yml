@@ -11,21 +11,17 @@ jobs:
     name: "Python ${{ matrix.python-version }}"
     runs-on: "ubuntu-latest"
 
-
-    strategy:
-      matrix:
-        python-version: ["3.9"]
-
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/checkout@v4"
+      - uses: "actions/setup-python@v5"
         with:
-          python-version: "${{ matrix.python-version }}"
+          python-version: '3.9'
       - name: Install dependencies
         run: |
           pip install pipenv
           pip install build
-          pipenv install --dev
+          pipenv install --dev --system
+          pip install setuptools==70.3.0
       - name: Test
         run: |
           pipenv run pytest
