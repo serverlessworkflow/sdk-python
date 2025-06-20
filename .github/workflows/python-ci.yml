@@ -8,24 +8,20 @@ on:
 
 jobs:
   tests:
-    name: "Python ${{ matrix.python-version }}"
+    name: "Python 3.9"
     runs-on: "ubuntu-latest"
 
-
-    strategy:
-      matrix:
-        python-version: ["3.9"]
-
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683" # v4.2.2
+      - uses: "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065" # v5.6.0
         with:
-          python-version: "${{ matrix.python-version }}"
+          python-version: '3.9'
       - name: Install dependencies
         run: |
           pip install pipenv
           pip install build
-          pipenv install --dev
+          pipenv install --dev --system
+          pip install setuptools==70.3.0
       - name: Test
         run: |
           pipenv run pytest

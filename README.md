@@ -19,7 +19,9 @@ Current sdk version conforms to the [Serverless Workflow specification v0.8](htt
 - pipenv required `pip install pipenv`
 
 ```
-pipenv install --dev 
+pipenv install --dev
+
+pipenv run pip install 'setuptools==70.3.0'
 
 pipenv shell
 
