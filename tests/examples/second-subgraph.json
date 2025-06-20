@@ -1,0 +1,66 @@
+{
+  "id": "second-subgraph",
+  "version": "0.1.0",
+  "specVersion": "0.8",
+  "start": "test-switch",
+  "states": [
+    {
+      "name": "test-switch",
+      "type": "switch",
+      "dataConditions": [
+        {
+          "condition": "condition1",
+          "transition": "test"
+        },
+        {
+          "condition": "condition2",
+          "transition": "test2"
+        }
+      ],
+      "defaultCondition": {
+        "end": true
+      }
+    },
+    {
+      "name": "test",
+      "type": "parallel",
+      "branches": [
+        {
+          "name": "send-sms",
+          "actions": [
+            {
+              "functionRef": "f9"
+            }
+          ]
+        },
+        {
+          "name": "tweet",
+          "actions": [
+            {
+              "functionRef": "f10"
+            }
+          ]
+        },
+        {
+          "name": "messenger-chatbot",
+          "actions": [
+            {
+              "functionRef": "f11"
+            }
+          ]
+        }
+      ],
+      "end": true
+    },
+    {
+      "name": "test2",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": "functionref"
+        }
+      ],
+      "end": true
+    }
+  ]
+}

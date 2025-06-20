@@ -1,0 +1,181 @@
+{
+  "id": "graph",
+  "version": "0.1.0",
+  "specVersion": "0.8",
+  "description": "Real estate listing website",
+  "start": "entry-event",
+  "states": [
+    {
+      "name": "entry-event",
+      "type": "event",
+      "onEvents": [
+        {
+          "eventRefs": [
+            "triggerEvent"
+          ],
+          "actions": [
+            {
+              "functionRef": "process-event"
+            }
+          ]
+        }
+      ],
+      "stateDataFilter": {
+        "output": "${ .transformed }"
+      },
+      "transition": "entry-decision"
+    },
+    {
+      "name": "entry-decision",
+      "type": "switch",
+      "dataConditions": [
+        {
+          "condition": "${ .\"postListing\" == true }",
+          "transition": "f1-upload-listing"
+        },
+        {
+          "condition": "${ .\"submitDoc\" == true }",
+          "transition": "f2-upload-verification"
+        },
+        {
+          "condition": "${ .\"submitClientInfo\" == true }",
+          "transition": "f3-upload-client"
+        }
+      ],
+      "defaultCondition": {
+        "end": true
+      }
+    },
+    {
+      "name": "f1-upload-listing",
+      "type": "operation",
+      "actionMode": "parallel",
+      "actions": [
+        {
+          "functionRef": "f1"
+        },
+        {
+          "functionRef": "f2"
+        },
+        {
+          "functionRef": {
+            "refName": "f5"
+          }
+        }
+      ],
+      "transition": "d1"
+    },
+    {
+      "name": "d1",
+      "type": "operation",
+      "actions": [
+        {
+          "eventRef": {
+            "triggerEventRef": "uploadPhoto",
+            "resultEventRef": "newPhoto"
+          }
+        }
+      ],
+      "transition": "f4-photo-verification"
+    },
+    {
+      "name": "f4-photo-verification",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": "f4"
+        }
+      ],
+      "transition": "f5-image-correction"
+    },
+    {
+      "name": "f5-image-correction",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": "f5"
+        }
+      ],
+      "transition": "f6-post-website"
+    },
+    {
+      "name": "f6-post-website",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": "f6"
+        }
+      ],
+      "transition": "advertise-listing"
+    },
+    {
+      "name": "advertise-listing",
+      "type": "operation",
+      "actions": [
+        {
+          "subFlowRef": "advertise-listing"
+        }
+      ],
+      "end": true
+    },
+    {
+      "name": "f2-upload-verification",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": "f2"
+        }
+      ],
+      "transition": "d2"
+    },
+    {
+      "name": "f3-upload-client",
+      "type": "operation",
+      "actions": [
+        {
+          "functionRef": "f3"
+        }
+      ],
+      "transition": "d2"
+    },
+    {
+      "name": "d2",
+      "type": "operation",
+      "actions": [
+        {
+          "eventRef": {
+            "triggerEventRef": "uploadInfo",
+            "resultEventRef": "newInfo"
+          }
+        }
+      ],
+      "transition": "new-info"
+    },
+    {
+      "name": "new-info",
+      "type": "parallel",
+      "branches": [
+        {
+          "name": "post-website",
+          "actions": [
+            {
+              "functionRef": "f7"
+            },
+            {
+              "functionRef": "f6"
+            }
+          ]
+        },
+        {
+          "name": "advertise",
+          "actions": [
+            {
+              "subFlowRef": "advertise-listing"
+            }
+          ]
+        }
+      ],
+      "end": true
+    }
+  ]
+}
