@@ -49,7 +49,7 @@ class CallbackState(State, SwfBase):
                  **kwargs):
 
         _default_values = {'type': 'callback', 'usedForCompensation': False, }
-        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration, _default_values)
+        SwfBase.__init__(self, locals(), kwargs, CallbackState.f_hydration, _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
