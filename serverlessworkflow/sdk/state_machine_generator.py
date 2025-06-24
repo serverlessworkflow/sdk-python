@@ -182,12 +182,14 @@ class StateMachineGenerator:
             branches = self.state.branches
             if branches:
                 if self.get_actions:
+                    self.state_machine.get_state(state_name).initial = []
                     for branch in branches:
                         if hasattr(branch, "actions") and branch.actions:
                             branch_name = branch.name
                             self.state_machine.get_state(state_name).add_substates(
                                 NestedState(branch_name)
                             )
+                            self.state_machine.get_state(state_name).initial.append(branch_name)
                             branch_state = self.state_machine.get_state(
                                 state_name
                             ).states[branch.name]
