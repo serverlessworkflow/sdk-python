@@ -32,10 +32,13 @@ class StateMachineHelper:
         )
         for index, state in enumerate(workflow.states):
             StateMachineGenerator(
-                state=state, state_machine=self.machine, is_first_state=index == 0, get_actions=self.get_actions, subflows=subflows
-            ).source_code()
-            
-        
+                state=state,
+                state_machine=self.machine,
+                is_first_state=index == 0,
+                get_actions=self.get_actions,
+                subflows=subflows,
+            ).generate()
+
         delattr(self.machine, "get_graph")
         self.machine.add_model(machine_type.self_literal)
 
