@@ -189,7 +189,9 @@ class StateMachineGenerator:
                             self.state_machine.get_state(state_name).add_substates(
                                 NestedState(branch_name)
                             )
-                            self.state_machine.get_state(state_name).initial.append(branch_name)
+                            self.state_machine.get_state(state_name).initial.append(
+                                branch_name
+                            )
                             branch_state = self.state_machine.get_state(
                                 state_name
                             ).states[branch.name]
@@ -344,7 +346,10 @@ class StateMachineGenerator:
                                     else f"{sf.id}/{sf.version.replace(NestedState.separator, '-')}"
                                 )
                                 self.state_machine_to_nested_state(
-                                    state_machine=new_machine, nested_state=nested_state
+                                    machine_state=machine_state,
+                                    state_name=state_name,
+                                    state_machine=new_machine,
+                                    nested_state=nested_state,
                                 )
                         if none_found:
                             warnings.warn(
@@ -364,10 +369,13 @@ class StateMachineGenerator:
             cls.add_all_sub_states(substate, ns)
 
     def state_machine_to_nested_state(
-        self, state_machine: HierarchicalMachine, nested_state: NestedState
+        self,
+        machine_state: NestedState,
+        state_name: str,
+        state_machine: HierarchicalMachine,
+        nested_state: NestedState,
     ) -> NestedState:
-        self.state_machine.get_state(self.state.name).add_substate(nested_state)
-
+        machine_state.add_substate(nested_state)
         self.add_all_sub_states(state_machine, nested_state)
 
         for trigger, event in state_machine.events.items():
@@ -377,8 +385,8 @@ class StateMachineGenerator:
                     dest = transition.dest
                     self.state_machine.add_transition(
                         trigger=trigger,
-                        source=f"{self.state.name}.{nested_state.name}.{source}",
-                        dest=f"{self.state.name}.{nested_state.name}.{dest}",
+                        source=f"{state_name}.{nested_state.name}.{source}",
+                        dest=f"{state_name}.{nested_state.name}.{dest}",
                     )
 
     def get_function_name(
