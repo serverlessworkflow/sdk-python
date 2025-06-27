@@ -198,12 +198,6 @@ class StateMachineGenerator:
                                 state_name=f"{state_name}.{branch_name}",
                                 actions=branch.actions,
                             )
-                            self.generate_composite_state(
-                                branch_state,
-                                f"{state_name}.{branch_name}",
-                                branch.actions,
-                                "sequential",
-                            )
 
     def event_based_switch_state_details(self): ...
 
