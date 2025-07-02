@@ -178,6 +178,11 @@ class StateMachineGenerator:
 
     def parallel_state_details(self):
         if isinstance(self.state, ParallelState):
+            if self.state.name not in self.state_machine.states.keys():
+                self.state_machine.add_states(self.state.name)
+            if self.is_first_state:
+                self.state_machine._initial = self.state.name
+
             state_name = self.state.name
             branches = self.state.branches
             if branches:
@@ -208,8 +213,8 @@ class StateMachineGenerator:
     def operation_state_details(self):
         if self.state.name not in self.state_machine.states.keys():
             self.state_machine.add_states(self.state.name)
-            if self.is_first_state:
-                self.state_machine._initial = self.state.name
+        if self.is_first_state:
+            self.state_machine._initial = self.state.name
 
         if isinstance(self.state, OperationState):
             self.generate_actions_info(
@@ -264,11 +269,11 @@ class StateMachineGenerator:
                         )
 
                         # Generate the state machine for the subflow
-                        for index, state in enumerate(sf.states):
+                        for state in sf.states:
                             StateMachineGenerator(
                                 state=state,
                                 state_machine=new_machine,
-                                is_first_state=index == 0,
+                                is_first_state=sf.start == state.name,
                                 get_actions=self.get_actions,
                                 subflows=self.subflows,
                             ).generate()

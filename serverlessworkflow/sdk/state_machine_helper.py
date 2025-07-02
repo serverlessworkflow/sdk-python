@@ -30,11 +30,11 @@ class StateMachineHelper:
             auto_transitions=False,
             title=title,
         )
-        for index, state in enumerate(workflow.states):
+        for state in workflow.states:
             StateMachineGenerator(
                 state=state,
                 state_machine=self.machine,
-                is_first_state=index == 0,
+                is_first_state=workflow.start == state.name,
                 get_actions=self.get_actions,
                 subflows=subflows,
             ).generate()
