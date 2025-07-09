@@ -17,7 +17,7 @@ class Metadata(State):
         Args:
             **kwargs: If kwargs contains `metadata`, assign them to the attribute.
         """
-        self.metadata = kwargs.pop("metadata", [])
+        self.metadata = kwargs.pop("metadata", None)
         super(Metadata, self).__init__(*args, **kwargs)
 
     def __getattr__(self, key):
