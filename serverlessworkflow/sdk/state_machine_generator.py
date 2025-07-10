@@ -265,6 +265,11 @@ class StateMachineGenerator:
     def foreach_state_details(self):
         if isinstance(self.current_state, ForEachState):
             self.state_to_machine_state(["foreach_state", "state"])
+            self.state_machine.add_transition(
+                trigger=f"{self.current_state.iterationParam} IN {self.current_state.inputCollection}",
+                source=self.current_state.name,
+                dest=self.current_state.name,
+            )
             self.generate_actions_info(
                 machine_state=self.state_machine.get_state(self.current_state.name),
                 state_name=self.current_state.name,
@@ -349,93 +354,104 @@ class StateMachineGenerator:
         actions: List[Dict[str, Action]],
         action_mode: str = "sequential",
     ):
-        parallel_states = []
-        if actions:
-            new_subflows_names = self.get_subflow_state(
-                machine_state=machine_state, state_name=state_name, actions=actions
-            )
-            for i, action in enumerate(actions):
-                name = None
-                if action.functionRef:
-                    name = (
-                        self.get_function_name(action.functionRef)
-                        if isinstance(action.functionRef, str)
-                        else (
-                            action.functionRef.refName
-                            if isinstance(action.functionRef, FunctionRef)
-                            else None
-                        )
-                    )
-                    if name not in machine_state.states.keys():
-                        machine_state.add_substate(
-                            ns := self.state_machine.state_cls(name)
-                        )
-                        ns.tags = ["function"]
-                        self.get_action_function(state=ns, f_name=name)
-                elif action.subFlowRef:
-                    name = new_subflows_names.get(i)
-                elif action.eventRef:
-                    name = f"{action.eventRef.triggerEventRef}/{action.eventRef.resultEventRef}"
-                    if name not in machine_state.states.keys():
-                        machine_state.add_substate(
-                            ns := self.state_machine.state_cls(name)
-                        )
-                        ns.tags = ["event"]
-                        self.get_action_event(state=ns, e_name=name)
-                if name:
-                    if action_mode == "sequential":
-                        if i < len(actions) - 1:
-                            # get next name
-                            next_name = None
-                            if actions[i + 1].functionRef:
-                                next_name = (
-                                    self.get_function_name(actions[i + 1].functionRef)
-                                    if isinstance(actions[i + 1].functionRef, str)
-                                    else (
-                                        actions[i + 1].functionRef.refName
-                                        if isinstance(
-                                            actions[i + 1].functionRef, FunctionRef
-                                        )
-                                        else None
-                                    )
-                                )
-                                if (
-                                    next_name
-                                    not in self.state_machine.get_state(
-                                        state_name
-                                    ).states.keys()
-                                ):
-                                    machine_state.add_substate(
-                                        ns := self.state_machine.state_cls(next_name)
-                                    )
-                                    ns.tags = ["function"]
-                                    self.get_action_function(state=ns, f_name=next_name)
-                            elif actions[i + 1].subFlowRef:
-                                next_name = new_subflows_names.get(i + 1)
-                            elif actions[i + 1].eventRef:
-                                next_name = f"{action.eventRef.triggerEventRef}/{action.eventRef.resultEventRef}"
-                                if (
-                                    next_name
-                                    not in self.state_machine.get_state(
-                                        state_name
-                                    ).states.keys()
-                                ):
-                                    machine_state.add_substate(
-                                        ns := self.state_machine.state_cls(next_name)
-                                    )
-                                    ns.tags = ["event"]
-                                    self.get_action_event(state=ns, e_name=next_name)
-                            self.state_machine.add_transition(
-                                trigger="",
-                                source=f"{state_name}.{name}",
-                                dest=f"{state_name}.{next_name}",
+        if self.get_actions:
+            parallel_states = []
+            if actions:
+                new_subflows_names = self.get_subflow_state(
+                    machine_state=machine_state, state_name=state_name, actions=actions
+                )
+                for i, action in enumerate(actions):
+                    name = None
+                    if action.functionRef:
+                        name = (
+                            self.get_function_name(action.functionRef)
+                            if isinstance(action.functionRef, str)
+                            else (
+                                action.functionRef.refName
+                                if isinstance(action.functionRef, FunctionRef)
+                                else None
                             )
-                        if i == 0:
-                            machine_state.initial = name
-                    elif action_mode == "parallel":
-                        parallel_states.append(name)
-                if action_mode == "parallel":
-                    machine_state.initial = parallel_states
+                        )
+                        if name not in machine_state.states.keys():
+                            machine_state.add_substate(
+                                ns := self.state_machine.state_cls(name)
+                            )
+                            ns.tags = ["function"]
+                            self.get_action_function(state=ns, f_name=name)
+                    elif action.subFlowRef:
+                        name = new_subflows_names.get(i)
+                    elif action.eventRef:
+                        name = f"{action.eventRef.triggerEventRef}/{action.eventRef.resultEventRef}"
+                        if name not in machine_state.states.keys():
+                            machine_state.add_substate(
+                                ns := self.state_machine.state_cls(name)
+                            )
+                            ns.tags = ["event"]
+                            self.get_action_event(state=ns, e_name=name)
+                    if name:
+                        if action_mode == "sequential":
+                            if i < len(actions) - 1:
+                                # get next name
+                                next_name = None
+                                if actions[i + 1].functionRef:
+                                    next_name = (
+                                        self.get_function_name(
+                                            actions[i + 1].functionRef
+                                        )
+                                        if isinstance(actions[i + 1].functionRef, str)
+                                        else (
+                                            actions[i + 1].functionRef.refName
+                                            if isinstance(
+                                                actions[i + 1].functionRef, FunctionRef
+                                            )
+                                            else None
+                                        )
+                                    )
+                                    if (
+                                        next_name
+                                        not in self.state_machine.get_state(
+                                            state_name
+                                        ).states.keys()
+                                    ):
+                                        machine_state.add_substate(
+                                            ns := self.state_machine.state_cls(
+                                                next_name
+                                            )
+                                        )
+                                        ns.tags = ["function"]
+                                        self.get_action_function(
+                                            state=ns, f_name=next_name
+                                        )
+                                elif actions[i + 1].subFlowRef:
+                                    next_name = new_subflows_names.get(i + 1)
+                                elif actions[i + 1].eventRef:
+                                    next_name = f"{action.eventRef.triggerEventRef}/{action.eventRef.resultEventRef}"
+                                    if (
+                                        next_name
+                                        not in self.state_machine.get_state(
+                                            state_name
+                                        ).states.keys()
+                                    ):
+                                        machine_state.add_substate(
+                                            ns := self.state_machine.state_cls(
+                                                next_name
+                                            )
+                                        )
+                                        ns.tags = ["event"]
+                                        self.get_action_event(
+                                            state=ns, e_name=next_name
+                                        )
+                                self.state_machine.add_transition(
+                                    trigger="",
+                                    source=f"{state_name}.{name}",
+                                    dest=f"{state_name}.{next_name}",
+                                )
+                            if i == 0:
+                                machine_state.initial = name
+                        elif action_mode == "parallel":
+                            parallel_states.append(name)
+                    if action_mode == "parallel":
+                        machine_state.initial = parallel_states
 
     def get_action_function(self, state: NestedState, f_name: str):
         if self.workflow.functions:
