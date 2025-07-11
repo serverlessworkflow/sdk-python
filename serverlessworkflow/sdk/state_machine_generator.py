@@ -259,7 +259,67 @@ class StateMachineGenerator:
 
     def event_state_details(self):
         if isinstance(self.current_state, EventState):
-            self.state_to_machine_state(["event_state", "state"])
+            state = self.state_to_machine_state(["event_state", "state"])
+            if self.get_actions:
+                if on_events := self.current_state.onEvents:
+                    state.initial = [] if len(on_events) > 1 else on_events[0]
+                    for i, oe in enumerate(on_events):
+                        state.add_substate(
+                            oe_state := self.state_machine.state_cls(
+                                oe_name := f"onEvent {i}"
+                            )
+                        )
+
+                        # define initial state
+                        if i == 0 and len(on_events) > 1:
+                            state.initial = [oe_state.name]
+                        elif i == 0 and len(on_events) == 1:
+                            state.initial = oe_state.name
+                        else:
+                            state.initial.append(oe_state.name)
+
+                        event_names = []
+                        for ie, event in enumerate(oe.eventRefs):
+                            oe_state.add_substate(
+                                ns := self.state_machine.state_cls(event)
+                            )
+                            ns.tags = ["event"]
+                            self.get_action_event(state=ns, e_name=event)
+                            event_names.append(event)
+
+                            # define initial state
+                            if ie == 0 and len(oe.eventRefs) > 1:
+                                oe_state.initial = [event]
+                            elif ie == 0 and len(oe.eventRefs) == 1:
+                                oe_state.initial = event
+                            else:
+                                oe_state.initial.append(event)
+
+                            if self.current_state.exclusive:
+                                oe_state.add_substate(
+                                    ns := self.state_machine.state_cls(
+                                        action_name := f"action {ie}"
+                                    )
+                                )
+                                self.state_machine.add_transition(
+                                    trigger="",
+                                    source=f"{self.current_state.name}.{oe_name}.{event}",
+                                    dest=f"{self.current_state.name}.{oe_name}.{action_name}",
+                                )
+                                self.generate_actions_info(
+                                    machine_state=ns,
+                                    state_name=f"{self.current_state.name}.{oe_name}.{action_name}",
+                                    actions=oe.actions,
+                                    action_mode=oe.actionMode,
+                                )
+                        if not self.current_state.exclusive and oe.actions:
+                            self.generate_actions_info(
+                                machine_state=oe_state,
+                                state_name=f"{self.current_state.name}.{oe_name}",
+                                actions=oe.actions,
+                                action_mode=oe.actionMode,
+                                initial_states=event_names,
+                            )
 
     def foreach_state_details(self):
         if isinstance(self.current_state, ForEachState):
@@ -352,6 +412,7 @@ class StateMachineGenerator:
         state_name: str,
         actions: List[Dict[str, Action]],
         action_mode: str = "sequential",
+        initial_states: List[str] = [],
     ):
         if self.get_actions:
             parallel_states = []
@@ -445,12 +506,27 @@ class StateMachineGenerator:
                                     source=f"{state_name}.{name}",
                                     dest=f"{state_name}.{next_name}",
                                 )
-                            if i == 0:
+                            if i == 0 and not initial_states:
                                 machine_state.initial = name
+                            elif i == 0 and initial_states:
+                                for init_s in initial_states:
+                                    self.state_machine.add_transition(
+                                        trigger="",
+                                        source=f"{state_name}.{init_s}",
+                                        dest=f"{state_name}.{name}",
+                                    )
                         elif action_mode == "parallel":
                             parallel_states.append(name)
-                    if action_mode == "parallel":
+                    if action_mode == "parallel" and not initial_states:
                         machine_state.initial = parallel_states
+                    elif action_mode == "parallel" and initial_states:
+                        for init_s in initial_states:
+                            for ps in parallel_states:
+                                self.state_machine.add_transition(
+                                    trigger="",
+                                    source=f"{state_name}.{init_s}",
+                                    dest=f"{state_name}.{ps}",
+                                )
 
     def get_action_function(self, state: NestedState, f_name: str):
         if self.workflow.functions:
