@@ -19,7 +19,7 @@ class OnEvents(SwfBase):
                  **kwargs):
 
         _default_values = {'actionMode': 'sequential'}
-        SwfBase.__init__(self, locals(), kwargs, SwfBase.default_hydration, _default_values)
+        SwfBase.__init__(self, locals(), kwargs, OnEvents.f_hydration, _default_values)
 
     @staticmethod
     def f_hydration(p_key, p_value):
