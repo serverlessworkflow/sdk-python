@@ -1,13 +1,10 @@
 from typing import List
 from serverlessworkflow.sdk.workflow import Workflow
 from serverlessworkflow.sdk.state_machine_generator import StateMachineGenerator
-from transitions.extensions.diagrams import HierarchicalGraphMachine, GraphMachine
 from serverlessworkflow.sdk.state_machine_extensions import (
     CustomGraphMachine,
     CustomHierarchicalGraphMachine,
 )
-from transitions.extensions.nesting import NestedState
-from transitions.extensions.diagrams_base import BaseGraph
 
 
 class StateMachineHelper:

@@ -23,7 +23,6 @@ from serverlessworkflow.sdk.workflow import (
 from serverlessworkflow.sdk.transition_data_condition import TransitionDataCondition
 from serverlessworkflow.sdk.end_data_condition import EndDataCondition
 
-from transitions.extensions import HierarchicalMachine, GraphMachine
 from transitions.extensions.nesting import NestedState
 import warnings
 
