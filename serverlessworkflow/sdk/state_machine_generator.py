@@ -447,7 +447,11 @@ class StateMachineGenerator:
                                 ns := self.state_machine.state_cls(name)
                             )
                             ns.tags = ["event"]
-                            self.get_action_event(state=ns, e_name=name)
+                            self.get_action_event(
+                                state=ns,
+                                e_name=action.eventRef.triggerEventRef,
+                                er_name=action.eventRef.resultEventRef,
+                            )
                     if name:
                         if action_mode == "sequential":
                             if i < len(actions) - 1:
@@ -499,7 +503,9 @@ class StateMachineGenerator:
                                         )
                                         ns.tags = ["event"]
                                         self.get_action_event(
-                                            state=ns, e_name=next_name
+                                            state=ns,
+                                            e_name=action.eventRef.triggerEventRef,
+                                            er_name=action.eventRef.resultEventRef,
                                         )
                                 self.state_machine.add_transition(
                                     trigger="",
@@ -536,13 +542,14 @@ class StateMachineGenerator:
                     state.metadata = {"function": current_function}
                     break
 
-    def get_action_event(self, state: NestedState, e_name: str):
+    def get_action_event(self, state: NestedState, e_name: str, er_name: str = ""):
         if self.workflow.events:
             for event in self.workflow.events:
                 current_event = event.serialize().__dict__
                 if current_event["name"] == e_name:
                     state.metadata = {"event": current_event}
-                    break
+                if current_event["name"] == er_name:
+                    state.metadata = {"result_event": current_event}
 
     def subflow_state_name(self, action: Action, subflow: Workflow):
         return (
