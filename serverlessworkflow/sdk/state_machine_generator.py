@@ -295,7 +295,7 @@ class StateMachineGenerator:
                             else:
                                 oe_state.initial.append(event)
 
-                            if self.current_state.exclusive:
+                            if self.current_state.exclusive and oe.actions:
                                 oe_state.add_substate(
                                     ns := self.state_machine.state_cls(
                                         action_name := f"action {ie}"
