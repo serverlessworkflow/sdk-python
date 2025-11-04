@@ -340,7 +340,7 @@ class StateMachineGenerator:
         if isinstance(self.current_state, CallbackState):
             self.state_to_machine_state(["callback_state", "state"])
             action = self.current_state.action
-            if action and action.functionRef:
+            if action:
                 self.generate_actions_info(
                     machine_state=self.state_machine.get_state(self.current_state.name),
                     state_name=self.current_state.name,
@@ -542,14 +542,18 @@ class StateMachineGenerator:
                     state.metadata = {"function": current_function}
                     break
 
-    def get_action_event(self, state: NestedState, e_name: str, er_name: str = ""):
+    def get_action_event(self, state: NestedState, e_name: str, er_name: str = None):
         if self.workflow.events:
+            state.metadata = {"event": (None if er_name is None else {})}
             for event in self.workflow.events:
                 current_event = event.serialize().__dict__
                 if current_event["name"] == e_name:
-                    state.metadata = {"event": current_event}
-                if current_event["name"] == er_name:
-                    state.metadata = {"result_event": current_event}
+                    if type(state.metadata["event"]) == dict:
+                        state.metadata["event"]["trigger"] = current_event
+                    else:
+                        state.metadata["event"] = current_event
+                if er_name and current_event["name"] == er_name:
+                    state.metadata["event"]["result"] = current_event
 
     def subflow_state_name(self, action: Action, subflow: Workflow):
         return (
