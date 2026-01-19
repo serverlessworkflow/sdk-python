@@ -1,0 +1,12 @@
+digraph emit {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+emitEvent [label="emitEvent\nemit", shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+emitEvent -> end;
+start -> emitEvent;
+}

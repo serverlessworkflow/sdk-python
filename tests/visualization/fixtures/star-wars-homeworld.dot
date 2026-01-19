@@ -1,0 +1,16 @@
+digraph "star-wars-homeplanet" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+getStarWarsCharacter [label="getStarWarsCharacter\ncall: http\nGET https://swapi.dev/api/people/{id}", shape=box, style=rounded];
+getStarWarsHomeworld [label="getStarWarsHomeworld\ncall: http\nGET ${ $context.homeworld }", shape=box, style=rounded];
+id [label="Input: id", shape=box, style=filled, fillcolor=lightyellow];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+getStarWarsCharacter -> getStarWarsHomeworld;
+getStarWarsHomeworld -> end;
+id -> getStarWarsCharacter [style=dashed, xlabel="input"];
+start -> getStarWarsCharacter;
+}

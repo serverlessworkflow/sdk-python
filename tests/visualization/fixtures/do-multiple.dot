@@ -1,0 +1,17 @@
+digraph "call-http-shorthand-endpoint" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+buyPet [label="buyPet\ncall: http\nPUT https://petstore.swagger.io/v2/pet/{petId}", shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+getPet [label="getPet\ncall: http\nGET https://petstore.swagger.io/v2/pet/{petId}", shape=box, style=rounded];
+petId [label="Input: petId", shape=box, style=filled, fillcolor=lightyellow];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+buyPet -> end;
+getPet -> buyPet;
+petId -> buyPet [style=dashed, xlabel="input"];
+petId -> getPet [style=dashed, xlabel="input"];
+start -> getPet;
+}

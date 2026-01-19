@@ -1,0 +1,14 @@
+digraph "conditional-task" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+placeBet [label="placeBet\ncall: http\nPOST https://superbet-casinos.com/api/bet/on/football", shape=box, style=rounded];
+raiseErrorIfUnderage [label="raiseErrorIfUnderage\nraise", shape=box, style=rounded];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+placeBet -> end;
+raiseErrorIfUnderage -> placeBet;
+start -> raiseErrorIfUnderage;
+}

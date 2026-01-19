@@ -1,0 +1,12 @@
+digraph "http-query-params" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+searchStarWarsCharacters [label="searchStarWarsCharacters\ncall: http\nGET https://swapi.dev/api/people/", shape=box, style=rounded];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+searchStarWarsCharacters -> end;
+start -> searchStarWarsCharacters;
+}

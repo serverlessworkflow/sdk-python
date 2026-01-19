@@ -1,0 +1,157 @@
+# Pre-commit hooks for Python projects
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+default_language_version:
+  python: python3.10
+
+repos:
+  # General file checks
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+      # Prevent giant files from being committed
+  - id: check-added-large-files
+    args: [--maxkb=1000]
+      # Check for files that would conflict in case-insensitive filesystems
+  - id: check-case-conflict
+      # Check for merge conflicts
+  - id: check-merge-conflict
+      # Check for debugger imports and py37+ breakpoint()
+  - id: debug-statements
+      # Check JSON files are valid
+  - id: check-json
+      # Check TOML files are valid
+  - id: check-toml
+      # Check YAML files are valid
+  - id: check-yaml
+    args: [--unsafe]        # Allow custom YAML tags
+      # Ensure files end with a newline
+  - id: end-of-file-fixer
+      # Remove trailing whitespace
+  - id: trailing-whitespace
+    args: [--markdown-linebreak-ext=md]
+      # Fix mixed line endings
+  - id: mixed-line-ending
+    args: [--fix=lf]
+      # Check docstrings are valid Python
+  - id: check-docstring-first
+      # Check for symlinks that point to nothing
+  - id: check-symlinks
+      # Detect private keys
+  - id: detect-private-key
+
+  # Ruff - Fast Python linter and formatter (replaces Black, isort, flake8, pylint)
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.2.1
+  hooks:
+      # Run the linter
+  - id: ruff
+    args: [--fix, --exit-non-zero-on-fix]
+      # Run the formatter
+  - id: ruff-format
+
+  # Type checking with mypy
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.8.0
+  hooks:
+  - id: mypy
+    additional_dependencies:
+    - types-PyYAML
+    - types-requests
+    args: [--ignore-missing-imports, --warn-unused-configs]
+        # Only run on serverlessworkflow package, not tests
+    files: ^serverlessworkflow/
+
+  # Security checks
+- repo: https://github.com/PyCQA/bandit
+  rev: 1.7.6
+  hooks:
+  - id: bandit
+    args: [-c, pyproject.toml]
+    additional_dependencies: ['bandit[toml]']
+        # Skip tests directory
+    exclude: ^tests/
+
+  # # Check for common security issues
+  # - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+  #   rev: v1.3.3
+  #   hooks:
+  #     - id: python-safety-dependencies-check
+  #       files: pyproject.toml
+
+  # Markdown formatting
+- repo: https://github.com/executablebooks/mdformat
+  rev: 0.7.17
+  hooks:
+  - id: mdformat
+    additional_dependencies:
+    - mdformat-gfm        # GitHub Flavored Markdown
+    - mdformat-black        # Format code blocks with black style
+    args: [--wrap, '100']
+
+  # Check for spelling errors
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.2.6
+  hooks:
+  - id: codespell
+    args: [--ignore-words-list=crate]
+    exclude: ^(poetry.lock|package-lock.json|\.git/|\.pytest_cache/|\.mypy_cache/)
+
+  # Validate GitHub Actions workflows
+- repo: https://github.com/python-jsonschema/check-jsonschema
+  rev: 0.27.4
+  hooks:
+  - id: check-github-workflows
+  - id: check-dependabot
+
+  # YAML formatting
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.12.0
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix, --indent, '2']
+    exclude: ^(\.github/|examples/)      # Exclude workflow files and examples
+
+  # pyproject.toml formatting
+- repo: https://github.com/tox-dev/pyproject-fmt
+  rev: 1.7.0
+  hooks:
+  - id: pyproject-fmt
+
+  # Check for outdated Python syntax
+- repo: https://github.com/asottile/pyupgrade
+  rev: v3.15.0
+  hooks:
+  - id: pyupgrade
+    args: [--py310-plus]
+
+  # Check requirements files
+- repo: https://github.com/Lucas-C/pre-commit-hooks
+  rev: v1.5.4
+  hooks:
+  - id: forbid-crlf
+  - id: remove-crlf
+  - id: forbid-tabs
+  - id: remove-tabs
+
+  # Conventional commits
+- repo: https://github.com/compilerla/conventional-pre-commit
+  rev: v3.0.0
+  hooks:
+  - id: conventional-pre-commit
+    stages: [commit-msg]
+    args: [--force-scope]
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

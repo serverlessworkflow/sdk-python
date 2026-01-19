@@ -1,0 +1,19 @@
+digraph "for-example" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+checkup [label="checkup\nfor loop", shape=hexagon, style=filled, fillcolor=lightblue];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+checkup -> waitForCheckup;
+start -> checkup;
+waitForCheckup -> checkup [label="loop", style=dotted];
+waitForCheckup -> end;
+subgraph cluster_cluster_1 {
+style=dashed;
+labelloc=b;
+waitForCheckup [label="waitForCheckup", shape=box, style=rounded];
+}
+}

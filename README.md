@@ -9,158 +9,172 @@ With the SDK you can:
 
 ### Status
 
-Current sdk version conforms to the [Serverless Workflow specification v0.8](https://github.com/serverlessworkflow/specification/tree/0.8.x).
+Current sdk version conforms to the [Serverless Workflow specification v1.0](https://github.com/serverlessworkflow/specification/tree/v1.0.0).
 
+### Install and use
 
-## Install dependencies and run test 
+- Python 3.10+ required
 
-- Python 3 required
-
-- pipenv required `pip install pipenv`
-
-```
-pipenv install --dev
-
-pipenv run pip install 'setuptools==70.3.0'
-
-pipenv shell
-
-python setup.py pytest
+```bash
+pip install serverlessworkflow
 ```
 
-## Programmatically build workflow definitions 
+```python
+from serverlessworkflow.sdk import (
+    Workflow,
+    Document,
+    CallHttpTask,
+    CallHttpArguments,
+)
 
-```
- workflow = Workflow(
-        id="greeting",
-        name="Greeting Workflow",
-        description="Greet Someone",
-        version='1.0',
-        specVersion='0.8',
-        start="Greet",
-        states=[
-            OperationState(
-                name="Greet",
-                type="operation",
-                actions=[
-                    Action(
-                        functionRef=FunctionRef(
-                            refName="greetingFunction",
-                            arguments={
-                                "name": "${ .person.name }"
-                            }
-                        ),
-                        actionDataFilter=ActionDataFilter(
-                            results="${ .greeting }"
+new_workflow = Workflow(
+                document=Document(
+                    dsl="1.0.2", 
+                    namespace="examples", 
+                    name="http-query-params", 
+                    version="1.0.0"
+                ),
+                do=[
+                    {
+                        "searchStarWarsCharacters": CallHttpTask(
+                            with_=CallHttpArguments(
+                                method="get",
+                                endpoint="https://swapi.dev/api/people/",
+                                query={"search": "${.searchQuery}"},
+                            )
                         )
-                    )
+                    }
                 ],
-                end=True
+                input={
+                    "schema": {
+                        "format": "json",
+                        "document": {
+                            "type": "object",
+                            "required": ["searchQuery"],
+                            "properties": {"searchQuery": {"type": "string"}},
+                        },
+                    }
+                },
             )
-        ],
-        functions=[
-            Function(name="greetingFunction",
-                     operation="file://myapis/greetingapis.json#greeting")
-        ]
-    )
 ```
-You can see a full example in the [test_workflow.py](tests/serverlessworkflow/sdk/test_workflow.py) file
+
+## Programmatically build workflow definitions
+
+```python
+from serverlessworkflow.sdk import (
+    Workflow,
+    Document,
+    CallHttpTask,
+    CallHttpArguments,
+)
+
+workflow = Workflow(
+    document=Document(
+        dsl="1.0.0",
+        namespace="default",
+        name="greeting",
+        version="1.0.0",
+        title="Greeting Workflow",
+        summary="Greet Someone",
+    ),
+    do=[
+        CallHttpTask(
+            call="http",
+            with_=CallHttpArguments(
+                method="get",
+                endpoint="https://api.example.com/greet?name={$input.name}"
+            )
+        )
+    ]
+)
+```
+You can see full examples in the [tests/specification](tests/specification) directory
 
 ## Parse workflow JSON and YAML definitions
 
-### Convert from JSON or YAML source
+### Load from YAML source
 
-```
-swf_content = """id: greeting
-name: Greeting Workflow
-version: '1.0'
-description: Greet Someone
-specVersion: '0.8'
-start: Greet
-states:
-- name: Greet
-  type: operation
-  actions:
-  - functionRef:
-      refName: greetingFunction
-      arguments:
-        name: ${ .person.name }
-    actionDataFilter:
-      results: ${ .greeting }
-  end: true
-functions:
-- name: greetingFunction
-  operation: file://myapis/greetingapis.json#greeting
+```python
+from serverlessworkflow.sdk import Workflow
+
+yaml_content = """
+document:
+  dsl: 1.0.0-alpha1
+  namespace: default
+  name: greeting
+  version: 1.0.0
+do:
+  - call: http
+    with:
+      method: get
+      endpoint: https://api.example.com/greet
 """
-  workflow = Workflow.from_source(swf_content)
+
+workflow = Workflow.from_yaml(yaml_content)
 ```
 
-You can see a full example in the [test_workflow.py](tests/serverlessworkflow/sdk/test_workflow.py) file
+You can see full examples in the [tests/specification](tests/specification) directory
 
 
-### Parse workflow to JSON / YAML
+### Export workflow to YAML
 
-```
-workflow = Workflow(id_="greeting",
-                    name="Greeting Workflow",
-                    description="Greet Someone",
-                    version='1.0',
-                    specVersion='0.8',
-                    start="Greet",
-                    states=[],
-                    functions=[]
-)                
-print(workflow.to_json())
-print(workflow.to_yaml())
-```
+```python
+from serverlessworkflow.sdk import Workflow, Document, SetTask
 
-You can see a full example in the [test_workflow.py](tests/serverlessworkflow/sdk/test_workflow.py) file
-
-
-## Validate workflow definitions
-
-```
-workflow = Workflow(id_="greeting",
-                    name="Greeting Workflow",
-                    description="Greet Someone",
-                    version='1.0',
-                    specVersion='0.8',
-                    start="Greet",
-                    states=[],
-                    functions=[]
+workflow = Workflow(
+    document=Document(
+        dsl="1.0.0-alpha1",
+        namespace="default",
+        name="greeting",
+        version="1.0.0",
+    ),
+    do=[
+        SetTask(set={"greeting": "Hello World"})
+    ]
 )
-WorkflowValidator(Workflow(workflow)).validate()
 
+yaml_output = workflow.to_yaml()
+print(yaml_output)
 ```
-The `validate` method will raise an exception if the provided workflow does not complaint specification.
 
-You can see a full example in the [test_workflow_validator](tests/serverlessworkflow/sdk/test_workflow_validator.py) file
+You can see full examples in the [tests/specification](tests/specification) directory
 
-## Generate workflow state machine and graph
+## Generate workflow rendered graph
+
+**Note** Please note that `pip install serverlessworkflow[viz]` needs to be installed in order for this to work. The `viz` feature installs pydot, which supports `graphviz`.
 
 To generate the workflow graph diagram:
 
+To dot files:
 ```python
-from serverlessworkflow.sdk.workflow import Workflow
-from serverlessworkflow.sdk.state_machine_helper import StateMachineHelper
-
-def main():
-    subflows = []
-    with open("tests/examples/graph.json") as f:
-        workflow = Workflow.from_source(f.read())
-    with open("tests/examples/advertise-listing.json") as f:
-        subflows.append(Workflow.from_source(f.read()))
-    with open("tests/examples/second-subgraph.json") as f:
-        subflows.append(Workflow.from_source(f.read()))
-    machine_helper = StateMachineHelper(workflow=workflow, get_actions=True, subflows=subflows)
-    machine_helper.draw('diagram.svg')
-
-
-if __name__ == "__main__":
-    main()
+workflow.render_graph(filename="/tmp/out.dot")
 ```
 
-The `StateMachineHelper` can be set with `get_actions` as `False` and the produced diagram will not represent the actions inside each state (it will only create a diagram with the states and their transitions). Moreover, the developer may not give any `subflows`, and they simply will not be generated.
-As for the `draw` method, the developer can also specify `graph_engine='mermaid'`. In that case, the method will not generate a figure, but rather the Mermaid code that can be executed, for instance, in the [Mermaid Live Editor](https://mermaid.live).
+An example rendered png from the dot file:
+```python
+workflow.render_graph(filename="/tmp/out.png", format="png")
+```
 
-It is also possible to only generate the workflow state machine. An example on how to do so can be analyzed in the [state_machine_helper](serverlessworkflow/sdk/state_machine_helper.py) source code.
+![Workflow Graph](tests/visualization/accumulate-room-readings.png)
+
+# Local development
+
+## Install dependencies and run tests
+
+- [uv](https://docs.astral.sh/uv/) recommended for dependency management
+
+```bash
+
+# Install dependencies
+uv sync --all-extras
+uv pip install -e .[dev,viz]
+
+# Run tests
+uv run pytest
+
+# Run linting
+uv run ruff check .
+
+# Run type checking
+uv run mypy .
+```

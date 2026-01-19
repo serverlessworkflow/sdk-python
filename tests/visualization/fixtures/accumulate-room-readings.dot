@@ -1,0 +1,23 @@
+digraph "accumulate-room-readings" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+consumeReading [label="consumeReading\nlisten", shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+generateReport [label="generateReport", shape=box, style=rounded];
+logReading [label="logReading\nfor loop", shape=hexagon, style=filled, fillcolor=lightblue];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+callOrderService -> generateReport;
+callOrderService -> logReading [label="loop", style=dotted];
+consumeReading -> logReading;
+generateReport -> end;
+logReading -> callOrderService;
+start -> consumeReading;
+subgraph cluster_cluster_1 {
+style=dashed;
+labelloc=b;
+callOrderService [label="callOrderService", shape=box, style=rounded];
+}
+}

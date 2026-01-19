@@ -1,0 +1,12 @@
+digraph "cron-schedule" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+backup [label="backup\ncall: http\nPOST https://example.com/api/v1/backup/start", shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+backup -> end;
+start -> backup;
+}

@@ -1,0 +1,12 @@
+digraph "run-script-with-stdin-and-arguments" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+runScript [label="runScript\nrun", shape=box, style=rounded];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+runScript -> end;
+start -> runScript;
+}

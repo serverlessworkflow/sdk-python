@@ -1,0 +1,18 @@
+digraph "bearer-auth" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+getNotifications [label="getNotifications\ncall: asyncapi\ngetNotifications", shape=box, style=rounded];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+getNotifications -> publishCloudEvent [label="foreach"];
+publishCloudEvent -> end;
+start -> getNotifications;
+subgraph cluster_cluster_1 {
+style=dashed;
+labelloc=b;
+publishCloudEvent [label="publishCloudEvent", shape=box, style=rounded];
+}
+}

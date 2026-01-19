@@ -1,0 +1,28 @@
+digraph "sample-workflow" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+handleUnknownOrderType [label="handleUnknownOrderType\nset", shape=box, style=rounded];
+processElectronicOrder [label="processElectronicOrder\nset", shape=box, style=rounded];
+processOrder [label="processOrder\nswitch", shape=triangle, style=filled, fillcolor=lightyellow];
+processPhysicalOrder [label="processPhysicalOrder\nset", shape=box, style=rounded];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+default -> processElectronicOrder;
+handleUnknownOrderType -> end;
+processElectronicOrder -> processPhysicalOrder;
+processOrder -> case1 [label="case1"];
+processOrder -> case2 [label="case2"];
+processOrder -> default [label="default"];
+processPhysicalOrder -> handleUnknownOrderType;
+start -> processOrder;
+subgraph cluster_cluster_1 {
+style=dashed;
+labelloc=b;
+case1 [label="case1\n.orderType == \"electronic\"", shape=box, style="rounded,filled", fillcolor=lightyellow];
+case2 [label="case2\n.orderType == \"physical\"", shape=box, style="rounded,filled", fillcolor=lightyellow];
+default [label="default\ndefault", shape=box, style="rounded,filled", fillcolor=lightyellow];
+}
+}
