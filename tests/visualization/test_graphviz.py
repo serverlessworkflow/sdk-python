@@ -33,9 +33,6 @@ def test_graphviz_examples(example_file):
     rendered_graph = workflow.render_graph(
         filename=f"tests/visualization/outputs/{example_name}.dot"
     )
-    rendered_graph = workflow.render_graph(
-        filename=f"tests/visualization/outputs/{example_name}.png"
-    )
 
     # Render PNG visualizations for comparison
     fixture_dot = Path(f"tests/visualization/fixtures/{example_name}.dot")
@@ -51,6 +48,19 @@ def test_graphviz_examples(example_file):
             print(f"  Generated: {fixture_png}")
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
             print(f"  Warning: Could not render {fixture_png}: {e}")
+
+    output_filename = Path(f"tests/visualization/outputs/{example_name}.dot")
+    if output_filename.exists():
+        output_png = output_filename.with_suffix(".png")
+        try:
+            subprocess.run(
+                ["dot", "-Tpng", str(output_filename), "-o", str(output_png)],
+                check=True,
+                capture_output=True,
+            )
+            print(f"  Generated: {output_png}")
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            print(f"  Warning: Could not render {output_png}: {e}")
 
     with open(f"tests/visualization/fixtures/{example_name}.dot", encoding="utf-8") as f:
         expected_graph = f.read()

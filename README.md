@@ -139,7 +139,7 @@ print(yaml_output)
 
 You can see full examples in the [tests/specification](tests/specification) directory
 
-## Generate workflow state machine and graph
+## Generate workflow rendered graph
 
 **Note** Please note that `pip install serverlessworkflow[viz]` needs to be installed in order for this to work. The `viz` feature installs pydot, which supports `graphviz`.
 
@@ -150,12 +150,12 @@ To dot files:
 workflow.render_graph(filename="/tmp/out.dot")
 ```
 
-The following requires `graphviz` to be installed (verify by checking to see if the `dot` binary is on the PATH):
-
-To png files:
+An example rendered png from the dot file:
 ```python
-workflow.render_graph(filename="/tmp/out.png")
+workflow.render_graph(filename="/tmp/out.png", format="png")
 ```
+
+![Workflow Graph](tests/visualization/accumulate-room-readings.png)
 
 # Local development
 
