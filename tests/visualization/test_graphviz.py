@@ -2,6 +2,7 @@
 
 Tests for graphviz visualization of Serverless Workflow spec examples.
 """
+
 import subprocess
 from pathlib import Path
 
