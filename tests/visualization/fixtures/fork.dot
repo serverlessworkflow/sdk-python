@@ -1,0 +1,21 @@
+digraph "fork-example" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+raiseAlarm [label="raiseAlarm\nfork", shape=diamond, style=filled, fillcolor=lightgreen];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+callDoctor -> end;
+callNurse -> end;
+raiseAlarm -> callDoctor;
+raiseAlarm -> callNurse;
+start -> raiseAlarm;
+subgraph cluster_cluster_1 {
+style=dashed;
+labelloc=b;
+callDoctor [label="callDoctor", shape=box, style=rounded];
+callNurse [label="callNurse", shape=box, style=rounded];
+}
+}

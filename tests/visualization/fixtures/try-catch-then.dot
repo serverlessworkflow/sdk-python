@@ -1,0 +1,34 @@
+digraph "try-catch" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+buyPet [label="buyPet\ncall: http\nPUT https://petstore.swagger.io/v2/pet/{petId}", shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+petId [label="Input: petId", shape=box, style=filled, fillcolor=lightyellow];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+tryGetPet [label="tryGetPet\ntry-catch", shape=octagon, style=filled, fillcolor=lightpink];
+buyPet -> end;
+getPet -> end;
+petId -> buyPet [style=dashed, xlabel="input"];
+setError -> buyPet;
+start -> tryGetPet;
+tryGetPet -> getPet [label="try"];
+tryGetPet -> notifySupport [label="catch", style=dashed, color=red];
+subgraph cluster_cluster_1 {
+labelloc=b;
+subgraph cluster_cluster_2 {
+label="try";
+labelloc=b;
+getPet [label="getPet", shape=box, style=rounded];
+}
+subgraph cluster_cluster_3 {
+label="catch";
+labelloc=b;
+notifySupport [label="notifySupport", shape=box, style=rounded];
+setError [label="setError", shape=box, style=rounded];
+notifySupport -> setError;
+}
+}
+}

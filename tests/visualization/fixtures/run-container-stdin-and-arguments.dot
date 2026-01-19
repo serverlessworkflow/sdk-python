@@ -1,0 +1,14 @@
+digraph "run-container-stdin-and-arguments" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+runContainer [label="runContainer\nrun", shape=box, style=rounded];
+setInput [label="setInput\nset", shape=box, style=rounded];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+runContainer -> end;
+setInput -> runContainer;
+start -> setInput;
+}

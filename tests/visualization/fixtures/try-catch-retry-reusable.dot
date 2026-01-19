@@ -1,0 +1,21 @@
+digraph "try-catch-retry" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+tryGetPet [label="tryGetPet\ntry-catch", shape=octagon, style=filled, fillcolor=lightpink];
+start -> tryGetPet;
+tryGetPet -> end;
+tryGetPet -> getPet [label="try"];
+subgraph cluster_cluster_1 {
+labelloc=b;
+subgraph cluster_cluster_2 {
+label="try";
+labelloc=b;
+getPet [label="getPet", shape=box, style=rounded];
+}
+}
+}

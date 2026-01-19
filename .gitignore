@@ -132,3 +132,6 @@ dmypy.json
 .idea
 .vscode
 *.iml
+
+tests/visualization/outputs/*
+tests/visualization/fixtures/*.png

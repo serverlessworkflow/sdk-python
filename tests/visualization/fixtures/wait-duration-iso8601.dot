@@ -1,0 +1,12 @@
+digraph "wait-duration-8601" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+wait30Seconds [label="wait30Seconds\nwait", shape=box, style=rounded];
+start -> wait30Seconds;
+wait30Seconds -> end;
+}

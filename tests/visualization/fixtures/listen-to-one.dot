@@ -1,0 +1,16 @@
+digraph "listen-to-one" {
+labelloc=top;
+fontsize=20;
+rankdir=TB;
+splines=ortho;
+node [shape=box, style=rounded];
+carId [label="Input: carId", shape=box, style=filled, fillcolor=lightyellow];
+end [label="end", shape=doublecircle, style=filled, fillcolor=lightcoral];
+start [label="start", shape=circle, style=filled, fillcolor=lightgreen];
+startup [label="startup\ncall: http\nPOST {'uri': 'https://virtual-wf-powered-race.com/api/v4/cars/{carId}/start'}", shape=box, style=rounded];
+waitForStartup [label="waitForStartup\nlisten", shape=box, style=rounded];
+carId -> startup [style=dashed, xlabel="input"];
+start -> waitForStartup;
+startup -> end;
+waitForStartup -> startup;
+}

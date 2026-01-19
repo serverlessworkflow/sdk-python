@@ -1,0 +1,3 @@
+[submodule "submodules/specification"]
+	path = submodules/specification
+	url = https://github.com/serverlessworkflow/specification.git
